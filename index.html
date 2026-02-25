@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <script src="https://unpkg.com/mailgo@0.12.2/dist/mailgo.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رحلة الـ 55 يوم الروحية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Reem+Kufi:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --dark-blue: #001a33; --gold: #d4af37; --white: #ffffff; }
+        body { margin: 0; padding: 20px 0; font-family: 'Amiri', serif; background: radial-gradient(circle, #003366, var(--dark-blue)); color: var(--white); min-height: 100vh; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
+        .page { display: none; width: 90%; max-width: 500px; margin: 0 auto; text-align: center; animation: fadeIn 0.8s ease; }
+        .active { display: block; }
+        .card { background: rgba(0, 26, 51, 0.95); padding: 30px; border-radius: 30px; border: 3px solid var(--gold); box-shadow: 0 0 30px rgba(212, 175, 55, 0.5); position: relative; margin-top: 20px; width: 100%; box-sizing: border-box; }
+        .score-box { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); background: var(--gold); color: var(--dark-blue); padding: 8px 25px; border-radius: 50px; font-weight: bold; border: 2px solid white; z-index: 10; }
+        
+        .leaderboard-card { margin-top: 40px; width: 90%; max-width: 500px; }
+        .leaderboard-list { text-align: right; margin-top: 15px; }
+        .leaderboard-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid rgba(212,175,55,0.2); }
+        .leaderboard-item.current-user { background: rgba(212, 175, 55, 0.2); border-radius: 10px; border: 1px solid var(--gold); }
+        .rank { font-weight: bold; color: var(--gold); margin-left: 10px; }
+        #dayProgressBar { width: 100%; height: 100%; background: var(--gold); transition: width 1s linear; }
+        #dayTimeRemaining { font-size: 0.8rem; color: var(--gold); margin-bottom: 15px; font-family: sans-serif; }
+
+        h1, h2 { color: var(--gold); font-family: 'Reem Kufi'; margin-bottom: 20px; }
+        .daily-frame { border: 4px double var(--gold); padding: 20px; margin: 20px 0; border-radius: 15px; background: rgba(255,255,255,0.05); }
+        .daily-text { color: var(--gold); font-size: 1.5rem; font-weight: bold; margin: 0; }
+        .explanation { font-size: 1.1rem; color: #ddd; margin-top: 10px; border-top: 1px solid #444; padding-top: 10px; line-height: 1.6; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: transparent; border: none; border-bottom: 2px solid var(--gold); color: white; text-align: center; font-size: 18px; box-sizing: border-box; }
+        #passHintContainer { text-align: left; margin: 10px 15px; font-family: sans-serif; font-size: 13px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px; }
+        button { width: 100%; padding: 15px; margin-top: 15px; background: var(--gold); border: none; border-radius: 50px; color: var(--dark-blue); font-weight: bold; font-size: 1.2rem; cursor: pointer; transition: 0.3s; }
+        button:hover { background: white; transform: scale(1.03); }
+        .option-btn { background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--gold); margin: 8px 0; }
+        #timerDisplay { font-size: 1.2rem; color: #ff4444; font-weight: bold; margin-bottom: 10px; }
+        .share-container { display: flex; justify-content: center; margin: 30px 0; }
+        .share-btn { background: linear-gradient(45deg, #d4af37, #f1c40f); color: #000 !important; width: 85%; padding: 18px; border-radius: 15px; font-weight: bold; text-decoration: none; box-shadow: 0 0 20px var(--gold); animation: pulse 2s infinite; display: flex; align-items: center; justify-content: center; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        footer { width: 90%; max-width: 500px; background: rgba(0, 26, 51, 0.95); padding: 15px; border: 2px solid var(--gold); border-radius: 20px; text-align: center; margin: 40px 0 20px 0; box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); font-size: 1.1rem; box-sizing: border-box; color: #ddd; }
+        footer a { color: var(--gold); text-decoration: none; font-weight: bold; }
+        footer a:hover { text-decoration: underline; }
+
+        /* --- Toast Notification Styles --- */
+        #toastContainer { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 1000; width: 90%; max-width: 400px; pointer-events: none; }
+        .toast { background: rgba(0, 26, 51, 0.95); color: white; padding: 15px 25px; border-radius: 15px; border: 2px solid var(--gold); margin-top: 10px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5); animation: toastIn 0.5s ease forwards, toastOut 0.5s ease 3.5s forwards; pointer-events: auto; }
+        .toast.error { border-color: #ff4444; color: #ff4444; }
+        .toast.success { border-color: #00ff00; color: #00ff00; }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes toastOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
+    </style>
+</head>
+<body>
+    <div id="toastContainer"></div>
+
+    <div id="loginPage" class="page active">
+        <div class="card">
+            <h1>† Login †</h1>
+            <input type="email" id="loginEmail" placeholder="Email">
+            <input type="password" id="loginPass" placeholder="Password">
+            <button onclick="login()">Login</button>
+            <button onclick="signInWithGoogle()" style="background:#4285F4; margin-top:10px;">
+                Sign in with Google
+            </button>
+            <p onclick="showPage('registerPage')" style="cursor:pointer; margin-top:20px;">Create New Account</p>
+            <p onclick="showPage('forgotPage')" style="color:var(--gold); cursor:pointer;">Forgot Password?</p>
+        </div>
+    </div>
+
+    <div id="registerPage" class="page">
+        <div class="card">
+            <h2>Sign Up</h2>
+            <input type="text" id="regName" placeholder="Name" maxlength="50">
+            <input type="email" id="regEmail" placeholder="Email">
+            <input type="password" id="regPass" placeholder="Creat New Password" oninput="checkPassRequirements(this.value)">
+            <div id="passHintContainer">
+                <div id="reqLen" style="color: #ff4444; margin-bottom: 5px;">✖ At least 6 characters</div>
+                <div id="reqCap" style="color: #ff4444; margin-bottom: 5px;">✖ At least one capital letter</div>
+                <div id="reqNum" style="color: #ff4444; margin-bottom: 5px;">✖ At least one number</div>
+            </div>
+            <button id="regBtn" onclick="register()">Start Journey</button>
+            <button onclick="signInWithGoogle()" style="background:#4285F4; margin-top:10px;">
+                Sign up with Google
+            </button>
+            <p onclick="showPage('loginPage')" style="cursor:pointer">Back to Login</p>
+        </div>
+    </div>
+
+    <div id="forgotPage" class="page">
+        <div class="card">
+            <h2>Reset Password</h2>
+            <p>أدخل إيميلك وسنرسل لك رابطاً لتغيير كلمة السر فوراً</p>
+            <input type="email" id="resetEmail" placeholder="Your Email">
+            <button onclick="forgotPassword()">إرسال الرابط</button>
+            <p onclick="showPage('loginPage')" style="cursor:pointer">رجوع</p>
+        </div>
+    </div>
+
+    <div id="homePage" class="page">
+        <div class="card">
+            <div class="score-box">النقاط: <span id="userScore">0</span></div>
+            <div style="margin-top:10px; color:var(--gold)">نهاية اليوم خلال:</div>
+            <div id="dayTimeRemaining">00:00:00</div>
+            <div id="sundaySpecialBox" style="display:none;"></div>
+            <div class="day-timer-container">
+                <div id="dayProgressBar"></div>
+            </div>
+            <h2 id="userNameDisplay"></h2>
+            <div id="sundayTag" style="color:#ff4444; font-weight:bold; margin-bottom:10px;"></div>
+            <div class="daily-frame">
+                <p class="daily-text" id="dailyMsg"></p>
+                <p class="explanation" id="dailyExp"></p>
+            </div>
+            <div id="quizArea">
+                <div id="timerDisplay">⏳ الوقت المتبقي للسؤال: 60 ثانية</div>
+                <h3 style="color:var(--gold)">سؤال اليوم:</h3>
+                <p id="questionText" style="font-size:1.2rem;"></p>
+                <div id="optionsContainer"></div>
+            </div>
+            <div id="adminContainer" style="display: flex; justify-content: center; margin-top: 20px;">
+                <button id="adminBtn" style="display:none; background: #ff4444; color:white; border:none; border-radius:50px; padding:10px 20px; font-weight:bold; cursor:pointer; width:60%;" onclick="openAdminPanel()">⚙️ لوحة التحكم</button>
+            </div>
+            <div class="share-container">
+                <a href="#" class="share-btn" onclick="shareApp()">📢 شير الرحلة لصحابك يستفيدوا</a>
+            </div>
+            <div style="display: flex; justify-content: center;">
+                <button onclick="logout()" style="background:transparent; color:var(--gold); border:1px solid var(--gold); width:40%; font-size:0.8rem;">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminPage" class="page">
+        <div class="card">
+            <h2 style="color:var(--gold);">🛡️ لوحة الإدارة</h2>
+            <div id="usersList" style="text-align: right; max-height: 400px; overflow-y: auto; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 15px;">
+                <p id="loadingAdminText">جاري جلب بيانات المتسابقين...</p>
+            </div>
+            <button onclick="goToHome()">🔙 العودة للرئيسية</button>
+        </div>
+    </div>
+
+    <div id="leaderboardSection" class="leaderboard-card">
+        <div class="card">
+            <h2 style="color:var(--gold); margin-bottom:10px;">🏆 قائمة الأبطال (Top 10)</h2>
+            <div id="leaderboardList" class="leaderboard-list">
+                <p style="text-align:center;">جاري تحميل القائمة...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="script.js"></script>
+    <footer>
+        📧 للدعم الفني: <a href="mailto:rehla55day@gmail.com">rehla55day@gmail.com</a>
+    </footer>
+</body>
+
+</html>
+
+

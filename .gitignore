@@ -1,0 +1,17 @@
+# Local worker & Secrets
+local.rules.json
+serviceAccountKey.json
+# firebase_worker.py is now public (logic only)
+answers_key.py
+
+# Temp & Logs
+*.log
+node_modules/
+.gemini_security/
+
+# Data backups
+extract_data.py
+full_questions.json
+full_answers.json
+questions.json
+answers.json
