@@ -94,8 +94,23 @@ def process_single_submission(uid, data):
             status_capture["reason"] = "ALREADY_PROCESSED"
             return None # Abort transaction
 
-        # Check 4: Correctness logic
-        is_correct = (choice == CORRECT_ANSWERS.get(submitted_day))
+        # Check 4: Timer Validation (Anti-Cheat)
+        quiz_start_time = current_user_data.get('quiz_start_time')
+        read_day = current_user_data.get('read_day')
+        final_choice = choice
+
+        if not quiz_start_time or read_day != submitted_day:
+            print(f"[{CHECKER_ID}] 🛑 SECURITY: User {uid} submitted without clicking START. Auto-failing.")
+            final_choice = -1
+        else:
+            delta_ms = timestamp_ms - quiz_start_time
+            # 10s allowed + 2s buffer for network = 12s
+            if delta_ms > 12000:
+                print(f"[{CHECKER_ID}] ⏳ TIMER EXPIRED: User {uid} took {delta_ms/1000:.1f}s. Auto-failing.")
+                final_choice = -1
+
+        # Check 5: Correctness logic
+        is_correct = (final_choice == CORRECT_ANSWERS.get(submitted_day))
         points = 10 if is_correct else 5
         result_str = "correct" if is_correct else "wrong"
         
@@ -103,6 +118,10 @@ def process_single_submission(uid, data):
         current_user_data['score'] = current_user_data.get('score', 0) + points
         current_user_data['solvedDays'] = solved_days + f",{submitted_day}:{result_str},"
         current_user_data['lastAnsweredDay'] = submitted_day
+        
+        # Reset quiz state
+        current_user_data['read_status'] = False
+        current_user_data['quiz_start_time'] = None
         
         status_capture["reason"] = "SUCCESS"
         status_capture["points"] = points

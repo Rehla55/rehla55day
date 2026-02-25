@@ -414,11 +414,18 @@
                                 <h3>⏳ جاري مراجعة إجابتك...</h3>
                                 <p style="color:white; font-size:0.95rem;">مدقق الإجابات يقوم بمعالجة طلبك الآن، يرجى عدم إغلاق الصفحة.</p>
                             </div>`;
-                            // Listen for the worker to finish
                             db.ref('submissions/' + uid).on('value', (s) => { if (!s.exists()) location.reload(); });
                         } else {
-                            renderOptions(data, uid, day);
-                            startTimer(day);
+                            // Check if user has clicked "Start"
+                            if (userData.read_status === true && userData.read_day === day) {
+                                document.getElementById('startQuizContainer').style.display = 'none';
+                                document.getElementById('quizContent').style.display = 'block';
+                                renderOptions(data, uid, day);
+                                startTimer(day);
+                            } else {
+                                document.getElementById('startQuizContainer').style.display = 'block';
+                                document.getElementById('quizContent').style.display = 'none';
+                            }
                         }
                     });
                 }
@@ -426,13 +433,29 @@
         });
     }
 
+    window.startQuiz = function() {
+        const user = firebase.auth().currentUser;
+        if (!user) return;
+        const day = getCurrentJourneyDay();
+        
+        db.ref('users/' + user.uid).update({
+            read_status: true,
+            read_day: day,
+            quiz_start_time: firebase.database.ServerValue.TIMESTAMP
+        }).then(() => {
+            loadDailyContent(user.uid);
+        }).catch(e => {
+            showToast("حدث خطأ أثناء بدء المسابقة، يرجى المحاولة لاحقاً.", "error");
+        });
+    };
+
     function startTimer(day) {
-        let timeLeft = 60;
+        let timeLeft = 10;
         clearInterval(timerInterval);
         const timerDisplay = document.getElementById('timerDisplay');
         timerInterval = setInterval(() => {
             timeLeft--;
-            if (timerDisplay) timerDisplay.textContent = "⏳ الوقت المتبقي للسؤال: " + timeLeft + " ثانية";
+            if (timerDisplay) timerDisplay.textContent = "⏳ الوقت المتبقي: " + timeLeft + " ثانية";
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
                 handleAutoFail();
