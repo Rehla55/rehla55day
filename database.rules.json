@@ -32,7 +32,7 @@
     "submissions": {
       "$uid": {
         ".read": "$uid === auth.uid",
-        ".write": "$uid === auth.uid && !data.exists()",
+        ".write": "$uid === auth.uid && !data.exists() && root.child('users').child($uid).child('role').val() !== 'banned'",
         ".validate": "newData.hasChildren(['day', 'choice', 'timestamp']) && newData.child('timestamp').val() === now"
       }
     },

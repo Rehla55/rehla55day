@@ -77,11 +77,64 @@
                 <div id="reqCap" style="color: #ff4444; margin-bottom: 5px;">✖ At least one capital letter</div>
                 <div id="reqNum" style="color: #ff4444; margin-bottom: 5px;">✖ At least one number</div>
             </div>
+            <div style="display: flex; align-items: center; justify-content: center; margin-top: 15px; font-size: 0.9rem;">
+                <input type="checkbox" id="agreeToPolicy" style="width: auto; margin-left: 10px;">
+                <label for="agreeToPolicy">أوافق على <a href="#" onclick="showPage('policyPage'); return false;" style="color: var(--gold);">شروط الاستخدام والسياسات</a></label>
+            </div>
             <button id="regBtn" onclick="register()">Start Journey</button>
             <button onclick="signInWithGoogle()" style="background:#4285F4; margin-top:10px;">
                 Sign up with Google
             </button>
             <p onclick="showPage('loginPage')" style="cursor:pointer">Back to Login</p>
+        </div>
+    </div>
+
+    <div id="verifyEmailPage" class="page">
+        <div class="card">
+            <h2>📧 تفعيل الحساب</h2>
+            <p style="line-height: 1.7;">
+                تم إرسال رابط تفعيل إلى بريدك الإلكتروني. يرجى الضغط على الرابط الموجود في الرسالة لتنشيط حسابك.
+                <br><br>
+                <strong style="color:var(--gold);">تفقد صندوق الرسائل غير الهامة (Spam) إذا لم تجد الرسالة.</strong>
+            </p>
+            <button onclick="resendVerification()">إعادة إرسال الرابط</button>
+            <button onclick="location.reload()" style="margin-top:10px; background:transparent; border:1px solid var(--gold); color:var(--gold);">تم التفعيل، قم بتحديث الصفحة</button>
+            <button onclick="logout()" style="margin-top:10px; background:transparent; border:1px solid #ff4444; color:#ff4444; width:50%; font-size:0.9rem;">الخروج</button>
+        </div>
+    </div>
+
+    <div id="bannedPage" class="page">
+        <div class="card" style="border-color: #ff4444;">
+            <h2 style="color:#ff4444;">🚫 تم غلق حسابك</h2>
+            <p>
+                لقد تم غلق هذا الحساب لمخالفته <a href="#" onclick="showPage('policyPage'); return false;" style="color: var(--gold);">شروط الاستخدام</a>.
+                <br><br>
+                إذا كنت تعتقد أن هذا القرار غير صحيح، يمكنك التواصل مع الدعم الفني.
+            </p>
+        </div>
+    </div>
+
+    <div id="policyPage" class="page">
+        <div class="card" style="text-align: right;">
+            <h2 style="text-align: center;">📜 سياسة الاستخدام</h2>
+            <p>
+                تهدف هذه المسابقة إلى توفير بيئة تنافسية وممتعة. للحفاظ على ذلك، يرجى الالتزام بالآتي:
+            </p>
+            <h4 style="color:var(--gold); margin-top: 20px;">1. المحتوى غير اللائق:</h4>
+            <ul style="padding-right: 20px;">
+                <li>يُمنع استخدام أسماء مستخدمين تحتوي على أي عبارات مسيئة، أو ألفاظ خارجة، أو تلميحات غير لائقة.</li>
+            </ul>
+            <h4 style="color:var(--gold); margin-top: 20px;">2. الغش واستغلال الثغرات:</h4>
+            <ul style="padding-right: 20px;">
+                <li>الهدف من المسابقة هو اختبار معلوماتك الشخصية. يُمنع منعاً باتاً استخدام أي وسائل للمساعدة في الإجابة (مثل البحث أثناء السؤال).</li>
+                <li>يُمنع محاولة استغلال أي ثغرات تقنية في الموقع للحصول على نقاط أو مزايا غير مستحقة. يقوم النظام بمراقبة الأوقات والسلوكيات غير الطبيعية.</li>
+            </ul>
+            <h4 style="color:var(--gold); margin-top: 20px;">إجراءات المخالفة:</h4>
+            <p>
+                أي حساب يتم اكتشاف مخالفته لهذه السياسات سيتم غلقه بشكل فوري ودون سابق إنذار، مع فقدان جميع النقاط المسجلة.
+            </p>
+            <h4 style="color:var(--gold); margin-top: 20px;">استعمالك لهذا الموقع يثبت موافقتك على سياسة الاستخدام</h4>
+            <button onclick="goToHome()" style="margin-top:20px;">فهمت، العودة</button>
         </div>
     </div>
 
@@ -159,7 +212,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="script.js"></script>
     <footer>
-        📧 للدعم الفني: <a href="mailto:rehla55day@gmail.com">rehla55day@gmail.com</a>
+        <a href="#" onclick="showPage('policyPage'); return false;">سياسة الاستخدام</a> | 📧 للدعم الفني: <a href="mailto:rehla55day@gmail.com">rehla55day@gmail.com</a>
     </footer>
 </body>
 

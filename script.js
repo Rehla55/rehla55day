@@ -122,7 +122,11 @@
         const email = document.getElementById('regEmail').value.trim();
         const pass = document.getElementById('regPass').value;
         const name = document.getElementById('regName').value.trim();
+        const agreeCheckbox = document.getElementById('agreeToPolicy');
 
+        if (!agreeCheckbox.checked) {
+            return showToast("يجب الموافقة على شروط الاستخدام أولاً.", "error");
+        }
         if (name.length > 50 || email.length > 100) return showToast("الاسم أو الإيميل طويل جداً!", "error");
         if (name === "" || email === "") return showToast("يرجى ملء جميع البيانات", "error");
         if (pass.length < 6 || !/[A-Z]/.test(pass) || !/[0-9]/.test(pass)) return showToast("شروط كلمة السر غير مكتملة!", "error");
@@ -131,6 +135,11 @@
             u.user.updateProfile({ displayName: name });
             const userUid = u.user.uid;
             
+            // Send verification email
+            u.user.sendEmailVerification().then(() => {
+                showToast("تم إرسال رابط التفعيل إلى بريدك الإلكتروني!", "success");
+            });
+
             db.ref('users/' + userUid).set({
                 name: name,
                 email: email,
@@ -139,14 +148,21 @@
                 role: 'user',
                 lastAnsweredDay: 0
             }).then(() => {
-                db.ref('leaderboard/' + userUid).set({ name: name, score: 0 }).then(() => {
-                    renderLeaderboard();
-                });
+                db.ref('leaderboard/' + userUid).set({ name: name, score: 0 });
             }).catch(e => {
                 console.error("Database initialization failed:", e);
                 showToast("تم إنشاء الحساب لكن حدث خطأ في إعداد الملف الشخصي.", "error");
             });
         }).catch(e => showToast("خطأ: " + e.message, "error"));
+    };
+
+    window.resendVerification = function() {
+        const user = firebase.auth().currentUser;
+        if (user) {
+            user.sendEmailVerification()
+                .then(() => showToast("تم إرسال رابط تفعيل جديد.", "success"))
+                .catch(e => showToast("خطأ: " + e.message, "error"));
+        }
     };
 
     window.login = function() {
@@ -194,15 +210,30 @@
 
     firebase.auth().onAuthStateChanged(user => {
         if (user) {
-            showPage('homePage');
-            loadDailyContent(user.uid);
-            const nameDisplay = document.getElementById('userNameDisplay');
-            if (nameDisplay) nameDisplay.textContent = "مرحباً: " + (user.displayName || "صديقي");
-            
+            // User is signed in.
+            // Check 1: Is email verified? (Skip for Google users)
+            if (!user.emailVerified && user.providerData.some(p => p.providerId === 'password')) {
+                showPage('verifyEmailPage');
+                return; // Stop further execution until verified
+            }
+
+            // Check 2: Is user banned?
             db.ref('users/' + user.uid).once('value').then(snap => {
-                const data = snap.val();
-                if (data) {
-                    if (data.role === 'admin') {
+                const userData = snap.val();
+                if (userData && userData.role === 'banned') {
+                    firebase.auth().signOut(); // Force sign out
+                    showPage('bannedPage'); // Show banned message
+                    return; // Stop further execution
+                }
+
+                // If not banned and verified, proceed to home page.
+                showPage('homePage');
+                loadDailyContent(user.uid);
+                const nameDisplay = document.getElementById('userNameDisplay');
+                if (nameDisplay) nameDisplay.textContent = "مرحباً: " + (user.displayName || "صديقي");
+
+                if (userData) {
+                    if (userData.role === 'admin') {
                         const adminBtn = document.getElementById('adminBtn');
                         if (adminBtn) adminBtn.style.display = 'inline-block';
                         syncAllUsersToLeaderboard();
@@ -218,6 +249,7 @@
                 window.dayTimerStarted = true;
             }
         } else {
+            // User is signed out.
             showPage('loginPage');
             if (window.dayTimerStarted) window.dayTimerStarted = false;
         }
@@ -312,32 +344,67 @@
             if (!snapshot.exists()) { usersListDiv.innerHTML = "<p style='text-align:center;'>لا يوجد مستخدمين حالياً.</p>"; return; }
             snapshot.forEach(childSnapshot => {
                 const userId = childSnapshot.key; const userData = childSnapshot.val();
+                if (!userData) return; // Skip if user data is null
                 const userRow = document.createElement('div');
                 userRow.className = "admin-user-card";
                 userRow.style.cssText = "border-bottom: 1px solid rgba(212,175,55,0.3); padding: 15px; margin-bottom: 10px; background: rgba(0,0,0,0.2); border-radius: 10px;";
+                
                 const nameDiv = document.createElement('div');
                 nameDiv.style.cssText = "color:#d4af37; font-weight:bold; font-size:1.1rem;";
                 nameDiv.textContent = `👤 ${userData.name || 'مجهول'}`;
+                
                 const emailDiv = document.createElement('div');
                 emailDiv.style.cssText = "font-size:0.85rem; color:#ccc; margin-bottom:8px;";
                 emailDiv.textContent = `📧 ${userData.email}`;
+
+                const roleDiv = document.createElement('div');
+                roleDiv.style.cssText = "font-size:0.85rem; color:" + (userData.role === 'banned' ? '#ff4444' : '#00ff00') + "; margin-bottom:12px; font-weight:bold;";
+                roleDiv.textContent = `الحالة: ${userData.role || 'user'}`;
+
                 const controlsDiv = document.createElement('div');
-                controlsDiv.style.cssText = "display:flex; justify-content:space-between; align-items:center;";
+                controlsDiv.style.cssText = "display:flex; justify-content:space-between; align-items:center; gap: 10px;";
+                
                 const scoreSpan = document.createElement('span');
                 scoreSpan.style.color = "white"; scoreSpan.textContent = "النقاط: ";
                 const scoreInput = document.createElement('input');
                 scoreInput.type = "number"; scoreInput.id = 'score_' + userId; scoreInput.value = userData.score || 0;
                 scoreInput.style.cssText = "width:70px; background:#1a1a1a; border:1px solid #d4af37; color:white; padding:4px; border-radius:5px;";
+                
                 const saveBtn = document.createElement('button');
-                saveBtn.style.cssText = "width:auto; padding:5px 15px; background:linear-gradient(45deg, #27ae60, #2ecc71); border:none; color:white; border-radius:5px; cursor:pointer;";
+                saveBtn.style.cssText = "width:auto; padding:5px 15px; background:linear-gradient(45deg, #27ae60, #2ecc71); border:none; color:white; border-radius:5px; cursor:pointer; margin: 0;";
                 saveBtn.textContent = "حفظ";
                 saveBtn.onclick = () => updateUserScore(userId, userData.name);
-                scoreSpan.appendChild(scoreInput); controlsDiv.appendChild(scoreSpan); controlsDiv.appendChild(saveBtn);
-                userRow.appendChild(nameDiv); userRow.appendChild(emailDiv); userRow.appendChild(controlsDiv);
+
+                const banBtn = document.createElement('button');
+                const isBanned = userData.role === 'banned';
+                banBtn.style.cssText = `width:auto; padding:5px 15px; background:${isBanned ? 'linear-gradient(45deg, #f39c12, #f1c40f)' : 'linear-gradient(45deg, #c0392b, #e74c3c)'}; border:none; color:white; border-radius:5px; cursor:pointer; margin: 0;`;
+                banBtn.textContent = isBanned ? "إلغاء الحظر ✅" : "حظر 🚫";
+                banBtn.onclick = () => toggleBan(userId, isBanned);
+                
+                scoreSpan.appendChild(scoreInput); 
+                controlsDiv.appendChild(scoreSpan); 
+                controlsDiv.appendChild(saveBtn);
+                controlsDiv.appendChild(banBtn);
+                
+                userRow.appendChild(nameDiv); 
+                userRow.appendChild(emailDiv);
+                userRow.appendChild(roleDiv);
+                userRow.appendChild(controlsDiv);
                 usersListDiv.appendChild(userRow);
             });
         });
     };
+
+    window.toggleBan = function(userId, isBanned) {
+        const newRole = isBanned ? 'user' : 'banned';
+        db.ref('users/' + userId + '/role').set(newRole).then(() => {
+            showToast(`تم ${isBanned ? 'إلغاء حظر' : 'حظر'} المستخدم بنجاح!`, "success");
+            openAdminPanel(); // Refresh the admin panel
+        }).catch(e => {
+            showToast("حدث خطأ: " + e.message, "error");
+        });
+    };
+
 
     window.updateUserScore = function(userId, userName) {
         const input = document.getElementById('score_' + userId);
