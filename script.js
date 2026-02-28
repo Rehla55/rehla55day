@@ -122,11 +122,7 @@
         const email = document.getElementById('regEmail').value.trim();
         const pass = document.getElementById('regPass').value;
         const name = document.getElementById('regName').value.trim();
-        const agreeCheckbox = document.getElementById('agreeToPolicy');
 
-        if (!agreeCheckbox.checked) {
-            return showToast("يجب الموافقة على شروط الاستخدام أولاً.", "error");
-        }
         if (name.length > 50 || email.length > 100) return showToast("الاسم أو الإيميل طويل جداً!", "error");
         if (name === "" || email === "") return showToast("يرجى ملء جميع البيانات", "error");
         if (pass.length < 6 || !/[A-Z]/.test(pass) || !/[0-9]/.test(pass)) return showToast("شروط كلمة السر غير مكتملة!", "error");
@@ -146,7 +142,8 @@
                 score: 0,
                 solvedDays: "",
                 role: 'user',
-                lastAnsweredDay: 0
+                lastAnsweredDay: 0,
+                agreedToPolicy: false // User must still go through the policy page
             }).then(() => {
                 db.ref('leaderboard/' + userUid).set({ name: name, score: 0 });
             }).catch(e => {
@@ -209,20 +206,58 @@
     function handleUserPostLogin(user) {
         db.ref('users/' + user.uid).once('value').then(snap => {
             if (!snap.exists()) {
-                const userName = user.displayName || user.email.split('@')[0];
-                db.ref('users/' + user.uid).set({
+                // New User: Redirect to Complete Profile Page
+                showPage('completeProfilePage');
+            } else {
+                // Existing User: Proceed normally
+                // Optional: Backfill agreedToPolicy for old users if needed, or just let them in.
+                // db.ref('users/' + user.uid).update({ agreedToPolicy: true }); 
+            }
+        });
+    }
+
+    window.finalizePolicyAgreement = function() {
+        const checkbox = document.getElementById('googleAgreePolicy');
+        if (!checkbox.checked) {
+            return showToast("يجب الموافقة على الشروط لإكمال التسجيل.", "error");
+        }
+
+        const user = firebase.auth().currentUser;
+        if (!user) return showPage('loginPage');
+
+        const userRef = db.ref('users/' + user.uid);
+        userRef.once('value').then(snap => {
+            const userName = user.displayName || user.email.split('@')[0];
+            if (snap.exists()) {
+                // SAFE: Existing user just adding the agreement flag
+                return userRef.update({
+                    agreedToPolicy: true,
+                    agreedTime: firebase.database.ServerValue.TIMESTAMP
+                });
+            } else {
+                // New user: Full profile initialization
+                return userRef.set({
                     name: userName,
                     email: user.email,
                     score: 0,
                     solvedDays: "",
                     role: 'user',
-                    lastAnsweredDay: 0
+                    lastAnsweredDay: 0,
+                    agreedToPolicy: true,
+                    agreedTime: firebase.database.ServerValue.TIMESTAMP
                 }).then(() => {
-                    db.ref('leaderboard/' + user.uid).set({ name: userName, score: 0 });
+                    return db.ref('leaderboard/' + user.uid).set({ name: userName, score: 0 });
                 });
             }
+        }).then(() => {
+            showToast("تم تحديث الحساب بنجاح!", "success");
+            showPage('homePage');
+            loadDailyContent(user.uid);
+        }).catch(e => {
+            console.error("Signup Finalization Error:", e);
+            showToast("حدث خطأ أثناء إعداد الحساب.", "error");
         });
-    }
+    };
 
     firebase.auth().onAuthStateChanged(user => {
         if (user) {
@@ -233,30 +268,34 @@
                 return; // Stop further execution until verified
             }
 
-            // Check 2: Is user banned?
+            // Check 2: User Status (Banned or Policy Agreement)
             db.ref('users/' + user.uid).once('value').then(snap => {
                 const userData = snap.val();
+                
                 if (userData && userData.role === 'banned') {
-                    firebase.auth().signOut(); // Force sign out
-                    showPage('bannedPage'); // Show banned message
-                    return; // Stop further execution
+                    firebase.auth().signOut();
+                    showPage('bannedPage');
+                    return;
                 }
 
-                // If not banned and verified, proceed to home page.
+                if (!userData || userData.agreedToPolicy !== true) {
+                    showPage('completeProfilePage');
+                    return;
+                }
+
+                // If verified, not banned, and agreed to policy:
                 showPage('homePage');
                 loadDailyContent(user.uid);
                 const nameDisplay = document.getElementById('userNameDisplay');
                 if (nameDisplay) nameDisplay.textContent = "مرحباً: " + (user.displayName || "صديقي");
 
-                if (userData) {
-                    if (userData.role === 'admin') {
-                        const adminBtn = document.getElementById('adminBtn');
-                        if (adminBtn) adminBtn.style.display = 'inline-block';
-                        syncAllUsersToLeaderboard();
-                    }
-                    if (data.name) {
-                        db.ref('leaderboard/' + user.uid + '/name').set(data.name).catch(() => {});
-                    }
+                if (userData.role === 'admin') {
+                    const adminBtn = document.getElementById('adminBtn');
+                    if (adminBtn) adminBtn.style.display = 'inline-block';
+                    syncAllUsersToLeaderboard();
+                }
+                if (userData.name) {
+                    db.ref('leaderboard/' + user.uid + '/name').set(userData.name).catch(() => {});
                 }
             });
 
@@ -607,14 +646,6 @@
         if(reqCap) reqCap.style.color = isCapOk ? "#00ff00" : "#ff4444";
         if(reqNum) reqNum.style.color = isNumOk ? "#00ff00" : "#ff4444";
         if(hint) hint.style.display = (isLenOk && isCapOk && isNumOk) ? "none" : "block";
-    };
-
-    window.toggleGoogleBtn = function(isChecked) {
-        const btn = document.getElementById('googleRegisterContainer');
-        if (btn) {
-            btn.style.opacity = isChecked ? "1" : "0.5";
-            btn.style.pointerEvents = isChecked ? "auto" : "none";
-        }
     };
 
     window.shareApp = function() {

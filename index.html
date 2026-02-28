@@ -125,14 +125,8 @@
                 <div id="reqCap" style="color: #ff4444; margin-bottom: 5px;">✖ At least one capital letter</div>
                 <div id="reqNum" style="color: #ff4444; margin-bottom: 5px;">✖ At least one number</div>
             </div>
-            <div
-                style="display: flex; align-items: center; justify-content: center; margin-top: 15px; font-size: 0.9rem;">
-                <input type="checkbox" id="agreeToPolicy" style="width: auto; margin-left: 10px;" onchange="toggleGoogleBtn(this.checked)">
-                <label for="agreeToPolicy">أوافق على <a href="#" onclick="showPage('policyPage'); return false;"
-                        style="color: var(--gold);">شروط الاستخدام والسياسات</a></label>
-            </div>
             <button id="regBtn" onclick="register()">Start Journey</button>
-            <div id="googleRegisterContainer" class="google-btn-container" style="opacity: 0.5; pointer-events: none; transition: opacity 0.3s;">
+            <div class="google-btn-container">
                 <div class="g_id_signin"
                      data-type="standard"
                      data-shape="pill"
@@ -143,6 +137,30 @@
                 </div>
             </div>
             <p onclick="showPage('loginPage')" style="cursor:pointer">Back to Login</p>
+        </div>
+    </div>
+
+    <div id="completeProfilePage" class="page">
+        <div class="card">
+            <h2>🎉 مرحبًا بك في الرحلة!</h2>
+            <p style="color:white; margin-bottom: 20px;">لقد قمت بتسجيل الدخول بنجاح. لإكمال إعداد حسابك، يرجى الموافقة على شروط الاستخدام.</p>
+            
+            <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: right;">
+                <h4 style="color:var(--gold); margin: 0 0 10px 0;">📜 تذكير سريع:</h4>
+                <ul style="padding-right: 20px; font-size: 0.9rem; color: #ddd;">
+                    <li>الاحترام المتبادل في الأسماء والمشاركات.</li>
+                    <li>منع الغش أو استخدام مساعدات خارجية.</li>
+                    <li>المخالفة تؤدي للحظر الفوري.</li>
+                </ul>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: center; margin-top: 15px; font-size: 1rem;">
+                <input type="checkbox" id="googleAgreePolicy" style="width: auto; margin-left: 10px;">
+                <label for="googleAgreePolicy">أوافق على <a href="#" onclick="showPage('policyPage'); return false;" style="color: var(--gold);">شروط الاستخدام</a></label>
+            </div>
+
+            <button onclick="finalizePolicyAgreement()">إتمام التسجيل والدخول 🚀</button>
+            <button onclick="logout()" style="margin-top:10px; background:transparent; border:1px solid #ff4444; color:#ff4444; width:50%; font-size:0.9rem; border-radius: 50px; padding: 10px;">الخروج</button>
         </div>
     </div>
 
