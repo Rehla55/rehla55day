@@ -66,12 +66,21 @@
         #toastContainer { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 1000; width: 90%; max-width: 400px; pointer-events: none; }
         .toast { background: rgba(0, 26, 51, 0.95); color: white; padding: 15px 25px; border-radius: 15px; border: 2px solid var(--gold); margin-top: 10px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5); animation: toastIn 0.5s ease forwards, toastOut 0.5s ease 3.5s forwards; pointer-events: auto; }
         .toast.error { border-color: #ff4444; color: #ff4444; }
-        .toast.success { border-color: #00ff00; color: #00ff00; }
-        @keyframes toastIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes toastOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } } 
-    </style>
-</head>
-
+                .toast.success { border-color: #00ff00; color: #00ff00; }
+                @keyframes toastIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+                @keyframes toastOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
+        
+                /* Container for Google Button to fix centering and layout shift */
+                .google-btn-container {
+                    width: 100%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    margin-top: 15px;
+                    min-height: 44px; /* Reserves space for the large button */
+                }
+            </style>
+        </head>
 <body>
     <div id="toastContainer"></div>
 
@@ -89,14 +98,15 @@
             data-nonce=""
             data-auto_prompt="false">
             </div>
-            <div class="g_id_signin"
-            data-type="standard"
-            data-shape="pill"
-            data-theme="outline"
-            data-text="signin_with"
-            data-size="large"
-            data-logo_alignment="left"
-            style="margin-top: 15px;">
+            <div class="google-btn-container">
+                <div class="g_id_signin"
+                data-type="standard"
+                data-shape="pill"
+                data-theme="outline"
+                data-text="signin_with"
+                data-size="large"
+                data-logo_alignment="left">
+                </div>
             </div>
             <p onclick="showPage('registerPage')" style="cursor:pointer; margin-top:20px;">Create New Account</p>
             <p onclick="showPage('forgotPage')" style="color:var(--gold); cursor:pointer;">I Forgot My Password</p>
@@ -122,14 +132,15 @@
                         style="color: var(--gold);">شروط الاستخدام والسياسات</a></label>
             </div>
             <button id="regBtn" onclick="register()">Start Journey</button>
-            <div class="g_id_signin"
-                 data-type="standard"
-                 data-shape="pill"
-                 data-theme="outline"
-                 data-text="signup_with"
-                 data-size="large"
-                 data-logo_alignment="left"
-                 style="margin-top: 15px;">
+            <div class="google-btn-container">
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-shape="pill"
+                     data-theme="outline"
+                     data-text="signup_with"
+                     data-size="large"
+                     data-logo_alignment="left">
+                </div>
             </div>
             <p onclick="showPage('loginPage')" style="cursor:pointer">Back to Login</p>
         </div>
