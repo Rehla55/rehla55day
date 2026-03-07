@@ -81,6 +81,8 @@
   OneSignalDeferred.push(async function(OneSignal) {
     await OneSignal.init({
       appId: "2feafbef-26eb-4c2c-a2c0-212488bcc10d",
+      serviceWorkerPath: "OneSignalSDKWorker.js",
+      serviceWorkerParam: { scope: "/rehla55day/" }
     });
   });
 </script>
@@ -304,6 +306,7 @@
     </footer>
 </body>
 </html>
+
 
 
 
