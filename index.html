@@ -293,35 +293,25 @@
     <footer>
         <a href="#" onclick="overlayIn(); return false;">سياسة الاستخدام</a> | 📧 للدعم الفني: <a href="mailto:rehla55day@gmail.com">rehla55day@gmail.com</a>
     </footer>
-    <!-- مكتبة المراسلة -->
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
-
 <script>
-  // 1. تشغيل الخدمة
   const messaging = firebase.messaging();
 
-  // 2. تسجيل الملف وطلب الإذن
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/rehla55day/firebase-messaging-sw.js')
-      .then(function(registration) {
-        console.log('Registration successful');
-        
-        // طلب الإذن بالإشعارات
-        Notification.requestPermission().then((permission) => {
-          if (permission === 'granted') {
-            messaging.getToken({ 
-              vapidKey: 'BJ8-ysECAGjQlPqjoRD9YPekOszOOOskrnOgNHU-BnPqMpHqrzUJn9VUKIMUJBJumd5kzr-za6yaLh2G5J_Qwtg',
-              serviceWorkerRegistration: registration 
-            }).then((token) => {
-              console.log('Token ready:', token);
-            });
-          }
-        });
-      });
-  }
+  // طلب الإذن والحصول على الـ Token
+  messaging.getToken({ 
+    vapidKey: 'BJ8-ysECAGjQlPqjoRD9YPekOszOOOskrnOgNHU-BnPqMpHqrzUJn9VUKIMUJBJumd5kzr-za6yaLh2G5J_Qwtg' 
+  }).then((currentToken) => {
+    if (currentToken) {
+      console.log('مبروك معاك التوكن:', currentToken);
+    } else {
+      console.log('المستخدم رفض الإشعارات');
+    }
+  }).catch((err) => {
+    console.log('حصل غلطة:', err);
+  });
 </script>
 </body>
 </html>
+
 
 
 
