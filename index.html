@@ -293,6 +293,8 @@
     <footer>
         <a href="#" onclick="overlayIn(); return false;">سياسة الاستخدام</a> | 📧 للدعم الفني: <a href="mailto:rehla55day@gmail.com">rehla55day@gmail.com</a>
     </footer>
+    <!-- لازم ده يكون موجود عشان الـ Error اللي في الصورة يختفي -->
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
 <script>
   const messaging = firebase.messaging();
 
@@ -309,8 +311,34 @@
     console.log('حصل غلطة:', err);
   });
 </script>
+    <script>
+  // استنى لما الصفحة تحمل خالص
+  window.onload = function() {
+    if (typeof firebase !== 'undefined' && firebase.messaging) {
+      const messaging = firebase.messaging();
+      
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/rehla55day/firebase-messaging-sw.js')
+          .then(function(registration) {
+            console.log('Service Worker Registered!');
+            
+            // طلب التوكن
+            messaging.getToken({ 
+              vapidKey: 'BJ8-ysECAGjQlPqjoRD9YPekOszOOOskrnOgNHU-BnPqMpHqrzUJn9VUKIMUJBJumd5kzr-za6yaLh2G5J_Qwtg',
+              serviceWorkerRegistration: registration 
+            }).then((token) => {
+              console.log('Token ready:', token);
+            }).catch(err => console.log('Token Error:', err));
+          });
+      }
+    } else {
+      console.log('Firebase Messaging library not loaded yet!');
+    }
+  };
+</script>
 </body>
 </html>
+
 
 
 
