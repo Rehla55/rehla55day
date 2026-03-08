@@ -678,34 +678,3 @@
 
     loadLeaderboard();
 })();
-// Initialize Firebase first
-firebase.initializeApp(firebaseConfig);
-
-// Get messaging instance
-const messaging = firebase.messaging();
-
-// Register service worker and request token
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('firebase-messaging-sw.js')
-        .then(function(registration) {
-            console.log('Service Worker Registered!');
-            
-            messaging.getToken({ 
-                vapidKey: 'BJ8-ysECAGjQlPqjoRD9YPekOszOOOskrnOgNHU-BnPqMpHqrzUJn9VUKlMUJBJumd5kzr-za6yaLh2G5J_Qwtg',
-                serviceWorkerRegistration: registration 
-            }).then((token) => {
-                console.log('Notification Token:', token);
-            }).catch(err => console.log('Token Error:', err));
-        })
-        .catch(err => console.log('Service Worker Error:', err));
-}
-
-// Handle foreground messages
-messaging.onMessage((payload) => {
-    console.log('Foreground message:', payload);
-    new Notification(payload.notification.title, {
-        body: payload.notification.body,
-        icon: 'img/log-circle.png'
-    });
-});
-
