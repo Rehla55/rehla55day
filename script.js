@@ -508,7 +508,7 @@
                 if (userData.lastAnsweredDay >= day) {
                     clearInterval(timerInterval);
                     const isCorrect = (userData.solvedDays || "").includes("," + day + ":correct,");
-                    quizArea.innerHTML = `<div style="padding:20px; border:2px solid ${isCorrect?'#00ff00':'#ff4444'}; border-radius:15px; background:rgba(0,0,0,0.3); color:${isCorrect?'#00ff00':'#ff4444'}; text-align:center;">
+                    quizArea.innerHTML = `<div style="padding:20px;margin-top:20px; border:2px solid ${isCorrect?'#00ff00':'#ff4444'}; border-radius:15px; background:rgba(0,0,0,0.3); color:${isCorrect?'#00ff00':'#ff4444'}; text-align:center;">
                         <h3>${isCorrect?'✅ أحسنت! إجابتك صحيحة':'📍 حظاً موفقاً غداً'}</h3>
                         <p style="color:white; font-size:0.95rem;">${data.e}</p>
                     </div>`;
