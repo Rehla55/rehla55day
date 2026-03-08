@@ -268,6 +268,9 @@
                 loadDailyContent(user.uid);
                 const nameDisplay = document.getElementById('userNameDisplay');
                 if (nameDisplay) nameDisplay.textContent = (user.displayName || "صديقي");
+                
+                const headerScore = document.getElementById('headerScore');
+                if (headerScore && userData) headerScore.textContent = (userData.score || 0) + " نقطة";
 
                 if (userData.role === 'admin') {
                     const adminBtn = document.getElementById('adminBtn');
@@ -498,6 +501,8 @@
             db.ref('users/' + uid).once('value').then(uSnap => {
                 const userData = uSnap.val() || { score: 0, solvedDays: "", lastAnsweredDay: 0 };
                 document.getElementById('userScore').textContent = userData.score || 0;
+                const headerScore = document.getElementById('headerScore');
+                if (headerScore) headerScore.textContent = (userData.score || 0) + " نقطة";
                 
                 if (userData.lastAnsweredDay >= day) {
                     clearInterval(timerInterval);
