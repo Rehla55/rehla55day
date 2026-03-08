@@ -709,23 +709,3 @@ messaging.onMessage((payload) => {
     });
 });
 
-messaging.getToken({ 
-    vapidKey: 'BJ8-ysECAGjQlPqjoRD9YPekOszOOOskrnOgNHU-BnPqMpHqrzUJn9VUKlMUJBJumd5kzr-za6yaLh2G5J_Qwtg' 
-}).then((currentToken) => {
-    if (currentToken) {
-        console.log("Token:", currentToken);
-    }
-    // 1. تعريف الـ Config
-const firebaseConfig = { ... }; 
-
-// 2. تشغيل الفايربيز
-firebase.initializeApp(firebaseConfig);
-
-// 3. تعريف الـ messaging (دي اللي ناقصة عندك غالباً)
-const messaging = firebase.messaging(); 
-
-// 4. طلب التوكن (الـ getToken)
-messaging.getToken({ vapidKey: 'BJ8-ysECAGjQlPqjoRD9YPekOszOOOskrnOgNHU-BnPqMpHqrzUJn9VUKlMUJBJumd5kzr-za6yaLh2G5J_Qwtg' }).then(...)
-}).catch((err) => {
-    console.log("Error:", err);
-});
