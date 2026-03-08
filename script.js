@@ -671,7 +671,7 @@
                 console.log('Notification permission granted.');
                 // Pass the registration to getToken
                 return messaging.getToken({ 
-                    vapidKey: 'BC_YQ5jZ7aX8wQ7xR9kZ8lV0mN1oP2qR3sT4uV5wX6yZ7aB8cD9eF0gH1iJ2kL3',
+                    vapidKey: 'BJ8-ysECAGjQlPqjoRD9YPek0szOO0skrn0gNHU-BnPqMpHqrzUJn9VUKlMUJBJumd5kzr-za6yaLh2G5J_Qwtg',
                     serviceWorkerRegistration: registration 
                 }); 
             } else {
