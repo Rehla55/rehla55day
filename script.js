@@ -196,43 +196,6 @@
 
     window.logout = function() { firebase.auth().signOut(); };
 
-    window.signInWithGoogle = function(response) {
-        // If response is present, it's from the new GSI library (ID Token)
-        if (response && response.credential) {
-            const credential = firebase.auth.GoogleAuthProvider.credential(response.credential);
-            firebase.auth().signInWithCredential(credential)
-                .then((result) => {
-                    handleUserPostLogin(result.user);
-                }).catch((error) => {
-                    console.error("GSI Error:", error);
-                    showToast("خطأ في تسجيل الدخول: " + error.message, "error");
-                });
-        } else {
-            // Fallback for direct calls (if any) or old popup method
-            const provider = new firebase.auth.GoogleAuthProvider();
-            firebase.auth().signInWithPopup(provider)
-                .then((result) => {
-                    handleUserPostLogin(result.user);
-                }).catch((error) => {
-                    console.error("Popup Error:", error);
-                    showToast("خطأ في تسجيل الدخول: " + error.message, "error");
-                });
-        }
-    };
-
-    function handleUserPostLogin(user) {
-        db.ref('users/' + user.uid).once('value').then(snap => {
-            if (!snap.exists()) {
-                // New User: Redirect to Complete Profile Page
-                showPage('completeProfilePage');
-            } else {
-                // Existing User: Proceed normally
-                // Optional: Backfill agreedToPolicy for old users if needed, or just let them in.
-                // db.ref('users/' + user.uid).update({ agreedToPolicy: true }); 
-            }
-        });
-    }
-
     window.finalizePolicyAgreement = function() {
         const checkbox = document.getElementById('googleAgreePolicy');
         if (!checkbox.checked) {
@@ -677,4 +640,92 @@
     };
 
     loadLeaderboard();
-})();
+    })();
+
+    // --- Global Functions (Outside IIFE to ensure visibility) ---
+    window.requestNotificationPermission = function() {
+    // We need to access 'messaging' and 'db' from inside the closure. 
+    // Since we can't easily break the closure without refactoring everything, 
+    // we will re-initialize messaging here strictly for this permission request.
+    // This is a robust fallback pattern.
+
+    if (!firebase.apps.length) return; // Should already be initialized
+
+    let messaging;
+    try {
+        if (firebase.messaging.isSupported()) {
+            messaging = firebase.messaging();
+        }
+    } catch (e) {
+        window.showToast("التنبيهات غير مدعومة في هذا المتصفح.", "error");
+        return;
+    }
+
+    if (!messaging) return window.showToast("التنبيهات غير مدعومة.", "error");
+
+    // Register Service Worker explicitly
+    navigator.serviceWorker.register('firebase-messaging-sw.js')
+    .then((registration) => {
+        Notification.requestPermission().then((permission) => {
+            if (permission === 'granted') {
+                console.log('Notification permission granted.');
+                // Pass the registration to getToken
+                return messaging.getToken({ 
+                    vapidKey: 'BC_YQ5jZ7aX8wQ7xR9kZ8lV0mN1oP2qR3sT4uV5wX6yZ7aB8cD9eF0gH1iJ2kL3',
+                    serviceWorkerRegistration: registration 
+                }); 
+            } else {
+                window.showToast("تم رفض إذن التنبيهات.", "error");
+            }
+        }).then((currentToken) => {
+        if (currentToken) {
+            console.log('Token:', currentToken);
+            const user = firebase.auth().currentUser;
+            if (user) {
+                firebase.database().ref('users/' + user.uid + '/fcmToken').set(currentToken);
+                window.showToast("تم تفعيل التنبيهات بنجاح!", "success");
+            }
+        } else {
+            console.log('No registration token available.');
+        }
+    }).catch((err) => {
+        console.log('An error occurred while retrieving token. ', err);
+    });
+    }); // Close navigator.serviceWorker.register
+};
+
+    // --- Google Sign-In Handler (Global) ---
+    window.signInWithGoogle = function(response) {
+    // If response is present, it's from the new GSI library (ID Token)
+    if (response && response.credential) {
+        const credential = firebase.auth.GoogleAuthProvider.credential(response.credential);
+        firebase.auth().signInWithCredential(credential)
+            .then((result) => {
+                handleUserPostLogin(result.user);
+            }).catch((error) => {
+                console.error("GSI Error:", error);
+                window.showToast("خطأ في تسجيل الدخول: " + error.message, "error");
+            });
+    } else {
+        // Fallback for direct calls (if any) or old popup method
+        const provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithPopup(provider)
+            .then((result) => {
+                handleUserPostLogin(result.user);
+            }).catch((error) => {
+                console.error("Popup Error:", error);
+                window.showToast("خطأ في تسجيل الدخول: " + error.message, "error");
+            });
+    }
+    };
+
+    window.handleUserPostLogin = function(user) {
+    // Note: We use 'firebase.database()' directly since 'db' is inside the IIFE
+    firebase.database().ref('users/' + user.uid).once('value').then(snap => {
+        if (!snap.exists()) {
+            // New User: Redirect to Complete Profile Page
+            window.showPage('completeProfilePage');
+        }
+        // Existing users are handled by onAuthStateChanged
+    });
+    };

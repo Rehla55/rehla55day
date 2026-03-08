@@ -75,15 +75,6 @@
             if (m) { m.classList.remove('active'); document.body.style.overflow = ''; }
         }
     </script>
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "2feafbef-26eb-4c2c-a2c0-212488bcc10d",
-    });
-  });
-</script>
 </head>
 <body>
     <div id="toastContainer"></div>
@@ -271,9 +262,11 @@
                 <a href="#" class="share-btn" onclick="shareApp()">📢 شير الرحلة لصحابك يستفيدوا</a>
             </div>
             <div style="display: flex; justify-content: center;">
+                <button onclick="requestNotificationPermission()" style="background:transparent; color:var(--gold); border:1px solid var(--gold); width:40%; font-size:0.8rem; margin-left: 5px;">🔔 تفعيل التنبيهات</button>
                 <button onclick="logout()"
-                    style="background:transparent; color:var(--gold); border:1px solid var(--gold); width:40%; font-family: Amiri;">Log out</button>
+                    style="background:transparent; color:var(--gold); border:1px solid var(--gold); width:40%; font-size:0.8rem;">Logout</button>
             </div>
+
         </div>
     </div>
     <div id="adminPage" class="page">
@@ -298,7 +291,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-    <script src="script.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
+    <script src="script.js?v=2.1"></script>
     <footer>
         <a href="#" onclick="overlayIn(); return false;">سياسة الاستخدام</a> | 📧 للدعم الفني: <a href="mailto:rehla55day@gmail.com">rehla55day@gmail.com</a>
     </footer>
