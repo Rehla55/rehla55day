@@ -489,14 +489,18 @@
             if (!data) return quizArea.innerHTML = "<p style='color:white;'>جاري تحميل السؤال...</p>";
             
             renderSundaySpecial(day);
-            document.getElementById('dailyMsg').textContent = spiritualMessages[day - 1] || "";
-            document.getElementById('dailyExp').textContent = spiritualExplanations[day - 1] || "";
-            document.getElementById('questionText').textContent = data.q;
+            const dailyMsg = document.getElementById('dailyMsg');
+            if (dailyMsg) dailyMsg.textContent = spiritualMessages[day - 1] || "";
+            const dailyExp = document.getElementById('dailyExp');
+            if (dailyExp) dailyExp.textContent = spiritualExplanations[day - 1] || "";
+            const questionText = document.getElementById('questionText');
+            if (questionText) questionText.textContent = data.q;
             
             const now = new Date();
             const cairoNow = new Date(now.toLocaleString('en-US', { timeZone: 'Africa/Cairo' }));
             const currentSunday = (cairoNow.getDay() === 0) ? "اليوم: " + (sundayNames[Math.floor((day - 1) / 7)] || "أحد مبارك") : "اليوم " + day + " من الرحلة";
-            document.getElementById('sundayTag').textContent = currentSunday;
+            const sundayTag = document.getElementById('sundayTag');
+            if (sundayTag) sundayTag.textContent = currentSunday;
             
             db.ref('users/' + uid).once('value').then(uSnap => {
                 const userData = uSnap.val() || { score: 0, solvedDays: "", lastAnsweredDay: 0 };
