@@ -1,0 +1,259 @@
+name: AI Journey Manager
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        type: choice
+        options:
+          - update_dates
+          - check_status
+          - generate_certificates
+          - close_journey
+  schedule:
+    # Run daily at midnight Cairo time to check journey status
+    - cron: '0 0 * * *'
+  repository_dispatch:
+    types: [ai-command]
+
+jobs:
+  manage_journey:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install firebase-admin requests
+
+      - name: Calculate journey dates
+        run: |
+          python << 'EOF'
+          import datetime
+          import json
+
+          # User-provided dates (2026-2030) + calculated future dates
+          USER_DATES = {
+              "2026": {"startDate": "2026-02-16", "endDate": "2026-04-11", "easterDate": "2026-04-12"},
+              "2027": {"startDate": "2027-02-22", "endDate": "2027-04-18", "easterDate": "2027-04-19"},
+              "2028": {"startDate": "2028-02-28", "endDate": "2028-04-16", "easterDate": "2028-04-17"},
+              "2029": {"startDate": "2029-02-11", "endDate": "2029-04-07", "easterDate": "2029-04-08"},
+              "2030": {"startDate": "2030-03-03", "endDate": "2030-04-28", "easterDate": "2030-04-29"},
+          }
+
+          ORTHODOX_EASTER = {
+              2031: "2031-04-13", 2032: "2032-05-02", 2033: "2033-04-25",
+              2034: "2034-04-10", 2035: "2035-04-30", 2036: "2036-04-21",
+              2037: "2037-04-06", 2038: "2038-04-26", 2039: "2039-04-18",
+              2040: "2040-05-07", 2041: "2041-04-22", 2042: "2042-04-14",
+              2043: "2043-05-04", 2044: "2044-04-25", 2045: "2045-04-10",
+              2046: "2046-04-30", 2047: "2047-04-21", 2048: "2048-04-06",
+              2049: "2049-04-26", 2050: "2050-04-18"
+          }
+
+          dates = dict(USER_DATES)
+          for year, easter in ORTHODOX_EASTER.items():
+              easter_dt = datetime.datetime.strptime(easter, "%Y-%m-%d")
+              dates[str(year)] = {
+                  "startDate": (easter_dt - datetime.timedelta(days=55)).strftime("%Y-%m-%d"),
+                  "endDate": (easter_dt - datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
+                  "easterDate": easter
+              }
+
+          with open('journey_dates.json', 'w') as f:
+              json.dump(dates, f, indent=2)
+
+          print("Generated journey dates for all years")
+          for year, d in list(dates.items())[:5]:
+              print(f"  {year}: {d['startDate']} → {d['endDate']}")
+          print("  ...")
+          EOF
+
+      - name: Initialize Firebase
+        env:
+          FIREBASE_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+        run: |
+          echo "$FIREBASE_KEY" > serviceAccountKey.json
+          python << 'EOF'
+          import firebase_admin
+          from firebase_admin import credentials, db
+          import json
+
+          cred = credentials.Certificate('serviceAccountKey.json')
+          firebase_admin.initialize_app(cred, {
+              'databaseURL': 'https://rehla55day-e8bf2-default-rtdb.firebaseio.com'
+          })
+          print("Firebase initialized")
+          EOF
+
+      - name: Update dates to Firebase
+        if: github.event.inputs.action == 'update_dates' || github.event.action == 'update_dates'
+        run: |
+          python << 'EOF'
+          import firebase_admin
+          from firebase_admin import credentials, db
+          import json
+          from datetime import datetime
+
+          cred = credentials.Certificate('serviceAccountKey.json')
+          firebase_admin.initialize_app(cred, {
+              'databaseURL': 'https://rehla55day-e8bf2-default-rtdb.firebaseio.com'
+          })
+
+          with open('journey_dates.json') as f:
+              dates = json.load(f)
+
+          # Update all dates
+          ref = db.reference('/journeyDates')
+          ref.set(dates)
+
+          # Set current active journey
+          now = datetime.now()
+          current = None
+          for year_str, d in dates.items():
+              start = datetime.strptime(d['startDate'], '%Y-%m-%d')
+              end = datetime.strptime(d['endDate'], '%Y-%m-%d')
+              if start <= now <= end:
+                  current = year_str
+                  break
+
+          if current:
+              ref = db.reference('/journeyDates/current')
+              ref.set({**dates[current], 'year': int(current)})
+              print(f"Set current journey to {current}")
+
+          print(f"Updated {len(dates)} years to Firebase")
+          EOF
+
+      - name: Check journey status
+        if: github.event.inputs.action == 'check_status' || github.event.action == 'check_status'
+        run: |
+          python << 'EOF'
+          import firebase_admin
+          from firebase_admin import credentials, db
+          from datetime import datetime
+
+          cred = credentials.Certificate('serviceAccountKey.json')
+          firebase_admin.initialize_app(cred, {
+              'databaseURL': 'https://rehla55day-e8bf2-default-rtdb.firebaseio.com'
+          })
+
+          ref = db.reference('/journeyDates/current')
+          current = ref.get()
+
+          if current:
+              print(f"Current Journey: {current.get('year', 'N/A')}")
+              print(f"  Start: {current.get('startDate')}")
+              print(f"  End: {current.get('endDate')}")
+              print(f"  Easter: {current.get('easterDate')}")
+          else:
+              print("No current journey set")
+
+          # Check if journey is ended
+          now = datetime.now()
+          ref = db.reference('/journeyDates')
+          all_dates = ref.get()
+
+          if all_dates:
+              for year, d in all_dates.items():
+                  if isinstance(d, dict):
+                      end = datetime.strptime(d.get('endDate', '2000-01-01'), '%Y-%m-%d')
+                      if end < now:
+                          print(f"Journey {year} has ENDED")
+                      else:
+                          start = datetime.strptime(d.get('startDate', '2000-01-01'), '%Y-%m-%d')
+                          if start > now:
+                              print(f"Journey {year} starts in {(start - now).days} days")
+          EOF
+
+      - name: Close journey & generate certificates
+        if: github.event.inputs.action == 'generate_certificates' || github.event.action == 'generate_certificates'
+        run: |
+          python << 'EOF'
+          import firebase_admin
+          from firebase_admin import credentials, db
+          from datetime import datetime
+
+          cred = credentials.Certificate('serviceAccountKey.json')
+          firebase_admin.initialize_app(cred, {
+              'databaseURL': 'https://rehla55day-e8bf2-default-rtdb.firebaseio.com'
+          })
+
+          # Update journey status to ended
+          ref = db.reference('/journeyDates')
+          ref.update({'status': 'ended'})
+
+          # Get leaderboard to find top user
+          lb_ref = db.reference('/leaderboard')
+          leaderboard = lb_ref.get()
+
+          if leaderboard:
+              users = [(uid, data.get('score', 0), data.get('name', 'Unknown')) 
+                      for uid, data in leaderboard.items() if isinstance(data, dict)]
+              users.sort(key=lambda x: x[1], reverse=True)
+
+              if users:
+                  top_user = {'uid': users[0][0], 'name': users[0][2], 'score': users[0][1]}
+                  print(f"Top user: {top_user['name']} with {top_user['score']} points")
+
+                  # Save certificate data
+                  cert_ref = db.reference('/certificates/2026')
+                  cert_ref.set({
+                      'generatedAt': datetime.now().isoformat(),
+                      'topUser': top_user,
+                      'totalParticipants': len(users)
+                  })
+
+          print("Journey closed, certificates ready")
+          EOF
+
+      - name: Update script.js dates
+        if: github.event.inputs.action == 'update_dates'
+        run: |
+          python << 'EOF'
+          import json
+          import re
+          
+          with open('journey_dates.json') as f:
+              dates = json.load(f)
+          
+          with open('script.js', 'r', encoding='utf-8') as f:
+              content = f.read()
+          
+          lines = ["    const journeyDates = ["]
+          for year in sorted(dates.keys()):
+              d = dates[year]
+              lines.append(f"            {{ start: '{d['startDate']}', end: '{d['endDate']}' }},")
+          lines.append("        ];")
+          new_array = "\n".join(lines)
+          
+          pattern = r'(function getCurrentJourneyDay\(\) \{[\s\S]*?const journeyDates = \[)[\s\S]*?(\];)'
+          match = re.search(pattern, content)
+          if match:
+              content = re.sub(pattern, r'\1\n' + new_array + r'\n\2', content)
+              with open('script.js', 'w', encoding='utf-8') as f:
+                  f.write(content)
+              print("✅ Updated script.js with new dates")
+          else:
+              print("⚠️ Pattern not found - manual update needed")
+              print("\nAdd this to getCurrentJourneyDay():")
+              print(new_array)
+          EOF
+
+      - name: Commit and push updates
+        if: github.event.inputs.action == 'update_dates'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "GitHub Actions Bot"
+          git add -A
+          git diff --staged --quiet || git commit -m "🤖 Auto-update journey dates for 2026-2050"
+          git push

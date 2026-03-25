@@ -5,7 +5,13 @@
       "$uid": {
         ".read": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
         ".write": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
-        "score": {
+        "score_2026": {
+          ".validate": "root.child('users').child(auth.uid).child('role').val() === 'admin' || (newData.isNumber() && (!data.exists() ? newData.val() == 0 : newData.val() == data.val()))"
+        },
+        "score_2027": {
+          ".validate": "root.child('users').child(auth.uid).child('role').val() === 'admin' || (newData.isNumber() && (!data.exists() ? newData.val() == 0 : newData.val() == data.val()))"
+        },
+        "score_2028": {
           ".validate": "root.child('users').child(auth.uid).child('role').val() === 'admin' || (newData.isNumber() && (!data.exists() ? newData.val() == 0 : newData.val() == data.val()))"
         },
         "role": {
@@ -27,9 +33,11 @@
     },
     "leaderboard": {
       ".read": "true",
-      "$uid": {
-        ".write": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
-        ".validate": "root.child('users').child(auth.uid).child('role').val() === 'admin' || (newData.hasChildren(['name', 'score']) && (newData.child('score').val() == 0 || newData.child('score').val() == (root.child('users').child($uid).child('score').exists() ? root.child('users').child($uid).child('score').val() : 0)))"
+      "$year": {
+        "$uid": {
+          ".write": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+          ".validate": "newData.hasChildren(['name', 'score']) && newData.child('score').isNumber()"
+        }
       }
     },
     "submissions": {
@@ -40,6 +48,10 @@
       }
     },
     "questions": {
+      ".read": "true",
+      ".write": "root.child('users').child(auth.uid).child('role').val() === 'admin'"
+    },
+    "journeyDates": {
       ".read": "true",
       ".write": "root.child('users').child(auth.uid).child('role').val() === 'admin'"
     }

@@ -1,11 +1,11 @@
-const CACHE_NAME = 'rehla55-v2';
+const CACHE_NAME = 'rehla55-v4';
 const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
   './img/icon.jpeg',
   './img/SiteImage.png',
-  './script.js?v=2.7'
+  './script.js?v=2.9'
 ];
 
 self.addEventListener('install', event => {

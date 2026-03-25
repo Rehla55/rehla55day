@@ -139,13 +139,186 @@
     let timerInterval;
 
     function getCurrentJourneyDay() {
-        const start = new Date('2026-02-16');
-        start.setHours(0, 0, 0, 0);
+        const journeyDates = [
+            { start: '2026-02-16', end: '2026-04-11' },
+            { start: '2027-02-22', end: '2027-04-18' },
+            { start: '2028-02-28', end: '2028-04-16' },
+            { start: '2029-02-11', end: '2029-04-07' },
+            { start: '2030-03-03', end: '2030-04-28' }
+        ];
         const nowInCairo = new Date(new Date().toLocaleString('en-US', { timeZone: 'Africa/Cairo' }));
         nowInCairo.setHours(0, 0, 0, 0);
-        const diffDays = Math.floor((nowInCairo - start) / (1000 * 60 * 60 * 24)) + 1;
-        return diffDays > 0 ? (diffDays <= 55 ? diffDays : 55) : 1;
+        
+        for (let i = 0; i < journeyDates.length; i++) {
+            const start = new Date(journeyDates[i].start);
+            const end = new Date(journeyDates[i].end);
+            if (nowInCairo >= start && nowInCairo <= end) {
+                const diffDays = Math.floor((nowInCairo - start) / (1000 * 60 * 60 * 24)) + 1;
+                return diffDays <= 55 ? diffDays : 55;
+            }
+        }
+        return 1;
     }
+
+    function isJourneyEnded() {
+        return !isInJourneyPeriod();
+    }
+
+    function getNextJourneyStart() {
+        const journeyDates = [
+            { start: '2026-02-16' },
+            { start: '2027-02-22' },
+            { start: '2028-02-28' },
+            { start: '2029-02-11' },
+            { start: '2030-03-03' }
+        ];
+        const nowInCairo = new Date(new Date().toLocaleString('en-US', { timeZone: 'Africa/Cairo' }));
+        for (const jd of journeyDates) {
+            const start = new Date(jd.start);
+            if (nowInCairo < start) {
+                return jd.start;
+            }
+        }
+        return journeyDates[journeyDates.length - 1].start;
+    }
+
+    function isNextYearStarted() {
+        const nextStart = new Date(getNextJourneyStart());
+        nextStart.setHours(0, 0, 0, 0);
+        const nowInCairo = new Date(new Date().toLocaleString('en-US', { timeZone: 'Africa/Cairo' }));
+        return nowInCairo >= nextStart;
+    }
+
+    function isInJourneyPeriod() {
+        const journeyDates = [
+            { start: '2026-02-16', end: '2026-04-11' },
+            { start: '2027-02-22', end: '2027-04-18' },
+            { start: '2028-02-28', end: '2028-04-16' },
+            { start: '2029-02-11', end: '2029-04-07' },
+            { start: '2030-03-03', end: '2030-04-28' }
+        ];
+        const nowInCairo = new Date(new Date().toLocaleString('en-US', { timeZone: 'Africa/Cairo' }));
+        for (const jd of journeyDates) {
+            const start = new Date(jd.start);
+            const end = new Date(jd.end);
+            if (nowInCairo >= start && nowInCairo <= end) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function getCurrentJourneyYear() {
+        const journeyDates = [
+            { year: 2026, start: '2026-02-16', end: '2026-04-11' },
+            { year: 2027, start: '2027-02-22', end: '2027-04-18' },
+            { year: 2028, start: '2028-02-28', end: '2028-04-16' },
+            { year: 2029, start: '2029-02-11', end: '2029-04-07' },
+            { year: 2030, start: '2030-03-03', end: '2030-04-28' }
+        ];
+        const nowInCairo = new Date(new Date().toLocaleString('en-US', { timeZone: 'Africa/Cairo' }));
+        for (const jd of journeyDates) {
+            const start = new Date(jd.start);
+            const end = new Date(jd.end);
+            if (nowInCairo >= start && nowInCairo <= end) {
+                return jd.year;
+            }
+        }
+        return null;
+    }
+
+    function updateWaitingCountdown(elementId, targetDate, displayElementId) {
+        const el = document.getElementById(elementId);
+        const displayEl = document.getElementById(displayElementId);
+        if (displayEl) {
+            const d = new Date(targetDate);
+            const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+            displayEl.textContent = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+        }
+        if (!el) return;
+        const update = () => {
+            const now = new Date();
+            const target = new Date(targetDate);
+            const diff = target - now;
+            if (diff <= 0) {
+                el.textContent = "الرحلة بدأت!";
+                location.reload();
+                return;
+            }
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            el.textContent = `متبقي ${days} يوم و ${hours} ساعة`;
+        };
+        update();
+        setInterval(update, 3600000);
+    }
+
+    function showCertificatePage(uid, userName, userScore) {
+        if (isNextYearStarted()) {
+            localStorage.removeItem('journeyEnded');
+            localStorage.removeItem('lastJourney');
+            location.reload();
+            return;
+        }
+        if (!isJourneyEnded()) return;
+
+        localStorage.setItem('journeyEnded', 'true');
+        
+        const currentYear = getCurrentJourneyYear() || localStorage.getItem('lastJourney') || '2026';
+        localStorage.setItem('lastJourney', currentYear);
+
+        const certYearEl = document.getElementById('certYear');
+        const certYear2El = document.getElementById('certYear2');
+        if (certYearEl) certYearEl.textContent = currentYear;
+        if (certYear2El) certYear2El.textContent = currentYear;
+
+        const topUserNameEl = document.getElementById('topUserName');
+        const topUserScoreEl = document.getElementById('topUserScore');
+        const participantNameEl = document.getElementById('participantName');
+        const participantScoreEl = document.getElementById('participantScore');
+
+        db.ref(`leaderboard/${currentYear}`).orderByChild('score').limitToLast(1).once('value').then(snap => {
+            let topUser = null;
+            snap.forEach(child => {
+                topUser = { uid: child.key, ...child.val() };
+            });
+
+            if (topUser && topUser.uid === uid && userScore > 0) {
+                if (topUserNameEl) topUserNameEl.textContent = userName;
+                if (topUserScoreEl) topUserScoreEl.textContent = userScore;
+                showPage('topUserCertPage');
+            } else if (userScore > 0) {
+                if (participantNameEl) participantNameEl.textContent = userName;
+                if (participantScoreEl) participantScoreEl.textContent = userScore;
+                showPage('participantCertPage');
+            } else {
+                showPage('thankYouPage');
+                updateWaitingCountdown('countdownWaiting', getNextJourneyStart(), 'nextYearDate');
+            }
+        }).catch(() => {
+            if (userScore > 0) {
+                if (participantNameEl) participantNameEl.textContent = userName;
+                if (participantScoreEl) participantScoreEl.textContent = userScore;
+                showPage('participantCertPage');
+            } else {
+                showPage('thankYouPage');
+                updateWaitingCountdown('countdownWaiting', getNextJourneyStart(), 'nextYearDate');
+            }
+        });
+    }
+
+    window.downloadCert = function(pageId, filename) {
+        const page = document.getElementById(pageId);
+        if (!page) return;
+        html2canvas(page).then(canvas => {
+            const link = document.createElement('a');
+            link.download = filename + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }).catch(err => {
+            showToast('حدث خطأ أثناء تحميل الشهادة', 'error');
+        });
+    };
 
     function updateDayCountdown() {
         const now = new Date();
@@ -203,13 +376,13 @@
             db.ref('users/' + userUid).set({
                 name: name,
                 email: email,
-                score: 0,
-                solvedDays: "",
+                score_2026: 0,
+                solvedDays_2026: "",
                 role: 'user',
                 lastAnsweredDay: 0,
                 agreedToPolicy: false // User must still go through the policy page
             }).then(() => {
-                db.ref('leaderboard/' + userUid).set({ name: name, score: 0 });
+                db.ref(`leaderboard/2026/${userUid}`).set({ name: name, score: 0 });
             }).catch(e => {
                 console.error("Database initialization failed:", e);
                 showToast("تم إنشاء الحساب لكن حدث خطأ في إعداد الملف الشخصي.", "error");
@@ -266,14 +439,14 @@
                 return userRef.set({
                     name: userName,
                     email: user.email,
-                    score: 0,
-                    solvedDays: "",
+                    score_2026: 0,
+                    solvedDays_2026: "",
                     role: 'user',
                     lastAnsweredDay: 0,
                     agreedToPolicy: true,
                     agreedTime: firebase.database.ServerValue.TIMESTAMP
                 }).then(() => {
-                    return db.ref('leaderboard/' + user.uid).set({ name: userName, score: 0 });
+                    return db.ref(`leaderboard/2026/${user.uid}`).set({ name: userName, score: 0 });
                 });
             }
         }).then(() => {
@@ -316,16 +489,23 @@
                 const nameDisplay = document.getElementById('userNameDisplay');
                 if (nameDisplay) nameDisplay.textContent = (user.displayName || "صديقي");
                 
+                const currentYear = getCurrentJourneyYear() || '2026';
+                const yearScore = userData[`score_${currentYear}`] || 0;
                 const headerScore = document.getElementById('headerScore');
-                if (headerScore && userData) headerScore.textContent = (userData.score || 0) + " نقطة";
+                if (headerScore) headerScore.textContent = (yearScore || 0) + " نقطة";
 
                 if (userData.role === 'admin') {
                     const adminBtn = document.getElementById('adminBtn');
                     if (adminBtn) adminBtn.style.display = 'inline-block';
-                    syncAllUsersToLeaderboard();
                 }
                 if (userData.name) {
-                    db.ref('leaderboard/' + user.uid + '/name').set(userData.name).catch(() => {});
+                    db.ref(`leaderboard/${currentYear}/${user.uid}/name`).set(userData.name).catch(() => {});
+                }
+
+                if (isJourneyEnded()) {
+                    localStorage.setItem('lastJourney', currentYear);
+                    showCertificatePage(user.uid, user.displayName || userData.name || "صديقي", yearScore);
+                    return;
                 }
             });
 
@@ -335,7 +515,15 @@
             }
         } else {
             // User is signed out.
-            showPage('loginPage');
+            if (isNextYearStarted()) {
+                localStorage.removeItem('journeyEnded');
+                showPage('loginPage');
+            } else if (isJourneyEnded()) {
+                showPage('waitingPage');
+                updateWaitingCountdown('countdownWaiting', getNextJourneyStart(), 'nextJourneyDate');
+            } else {
+                showPage('loginPage');
+            }
             if (window.dayTimerStarted) window.dayTimerStarted = false;
         }
         renderLeaderboard();
@@ -347,17 +535,35 @@
     function loadLeaderboard() {
         if (isLeaderboardListenerAttached) return;
         isLeaderboardListenerAttached = true;
-        const query = db.ref('leaderboard').orderByChild('score');
-        query.on('value', (snapshot) => {
+        const currentYear = getCurrentJourneyYear() || '2026';
+        
+        const loadData = (path) => db.ref(path).orderByChild('score').once('value');
+        
+        loadData(`leaderboard/${currentYear}`).then(snapshot => {
             const temp = [];
             snapshot.forEach(child => {
                 const val = child.val();
                 temp.push({ uid: child.key, name: val.name || "متسابق", score: val.score || 0 });
             });
-            temp.sort((a, b) => b.score - a.score);
-            leaderboardData = temp;
-            renderLeaderboard();
-        });
+            
+            if (temp.length === 0) {
+                return loadData('leaderboard').then(oldSnapshot => {
+                    const temp2 = [];
+                    oldSnapshot.forEach(child => {
+                        const val = child.val();
+                        temp2.push({ uid: child.key, name: val.name || "متسابق", score: val.score || 0 });
+                    });
+                    return temp2;
+                });
+            }
+            return temp;
+        }).then((temp) => {
+            if (temp && temp.length > 0) {
+                temp.sort((a, b) => b.score - a.score);
+                leaderboardData = temp;
+                renderLeaderboard();
+            }
+        }).catch(err => console.error("Leaderboard error:", err));
     }
 
     function renderLeaderboard() {
@@ -402,15 +608,16 @@
     }
 
     function syncAllUsersToLeaderboard() {
+        const currentYear = getCurrentJourneyYear() || '2026';
         return db.ref('users').once('value').then(snapshot => {
             if (!snapshot.exists()) return;
             const updates = {};
             snapshot.forEach(child => {
                 const userData = child.val();
                 if (userData.name) {
-                    updates['leaderboard/' + child.key] = {
+                    updates[`leaderboard/${currentYear}/${child.key}`] = {
                         name: userData.name,
-                        score: userData.score || 0
+                        score: userData[`score_${currentYear}`] || 0
                     };
                 }
             });
@@ -422,6 +629,7 @@
 
     window.openAdminPanel = function() {
         showPage('adminPage');
+        const currentYear = getCurrentJourneyYear() || '2026';
         const usersListDiv = document.getElementById('usersList');
         usersListDiv.innerHTML = "<p style='text-align:center; color:white;'>⏳ جاري تحميل قائمة الأبطال...</p>";
         db.ref('users').once('value').then(snapshot => {
@@ -450,9 +658,9 @@
                 controlsDiv.style.cssText = "display:flex; justify-content:space-between; align-items:center; gap: 10px;";
                 
                 const scoreSpan = document.createElement('span');
-                scoreSpan.style.color = "white"; scoreSpan.textContent = "النقاط: ";
+                scoreSpan.style.color = "white"; scoreSpan.textContent = `النقاط (${currentYear}): `;
                 const scoreInput = document.createElement('input');
-                scoreInput.type = "number"; scoreInput.id = 'score_' + userId; scoreInput.value = userData.score || 0;
+                scoreInput.type = "number"; scoreInput.id = 'score_' + userId; scoreInput.value = userData[`score_${currentYear}`] || 0;
                 scoreInput.style.cssText = "width:70px; background:#1a1a1a; border:1px solid #d4af37; color:white; padding:4px; border-radius:5px;";
                 
                 const saveBtn = document.createElement('button');
@@ -495,9 +703,10 @@
         const input = document.getElementById('score_' + userId);
         const newScore = parseInt(input.value);
         if(isNaN(newScore)) return showToast("يرجى إدخال رقم صحيح", "error");
+        const currentYear = getCurrentJourneyYear() || '2026';
         const updates = {};
-        updates['users/' + userId + '/score'] = newScore;
-        updates['leaderboard/' + userId + '/score'] = newScore;
+        updates[`users/${userId}/score_${currentYear}`] = newScore;
+        updates[`leaderboard/${currentYear}/${userId}/score`] = newScore;
         db.ref().update(updates).then(() => showToast("تم تحديث نقاط المستخدم بنجاح!", "success"));
     };
 
@@ -546,15 +755,19 @@
             if (sundayTag) sundayTag.textContent = currentSunday;
             
             db.ref('users/' + uid).once('value').then(uSnap => {
-                const userData = uSnap.val() || { score: 0, solvedDays: "", lastAnsweredDay: 0 };
+                const userData = uSnap.val() || {};
+                const currentYear = getCurrentJourneyYear() || '2026';
+                const yearScore = userData[`score_${currentYear}`] || 0;
+                const yearSolvedDays = userData[`solvedDays_${currentYear}`] || "";
+                const lastAnsweredDay = userData.lastAnsweredDay || 0;
                 const userScoreEl = document.getElementById('userScore');
-                if (userScoreEl) userScoreEl.textContent = userData.score || 0;
+                if (userScoreEl) userScoreEl.textContent = yearScore;
                 const headerScore = document.getElementById('headerScore');
-                if (headerScore) headerScore.textContent = (userData.score || 0) + " نقطة";
+                if (headerScore) headerScore.textContent = yearScore + " نقطة";
                 
-                if (userData.lastAnsweredDay >= day) {
+                if (lastAnsweredDay >= day) {
                     clearInterval(timerInterval);
-                    const isCorrect = (userData.solvedDays || "").includes("," + day + ":correct,");
+                    const isCorrect = yearSolvedDays.includes("," + day + ":correct,");
                     const dailyFrame = document.getElementById('dailyFrame');
                     if (dailyFrame) {
                         dailyFrame.style.display = 'block';
