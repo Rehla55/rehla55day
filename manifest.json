@@ -1,0 +1,33 @@
+{
+  "name": "رحلة الـ 55 يوم",
+  "short_name": "رحلة 55",
+  "description": "رحلة الـ 55 يوم مع يسوع",
+  "start_url": "https://rehla55.github.io/rehla55day/",
+  "display": "standalone",
+  "background_color": "#001a33",
+  "theme_color": "#d4af37",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "img/icon.jpeg",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "img/icon.jpeg",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "img/SiteImage.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["education", "lifestyle"],
+  "lang": "ar",
+  "dir": "rtl"
+}
