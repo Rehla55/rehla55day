@@ -761,6 +761,254 @@
     };
 
     loadLeaderboard();
+
+    // ============================================
+    // 2026 SEASON DATE CONTROL SYSTEM
+    // ============================================
+    const SEASON_START = new Date("2026-02-23T00:00:00");
+    const SEASON_END = new Date("2026-04-19T23:59:59");
+
+    function checkSeasonStatus() {
+        const now = new Date();
+        
+        if (now < SEASON_START) {
+            // Coming Soon
+            showComingSoonOverlay();
+            hideClaimButtons();
+        } else if (now > SEASON_END) {
+            // Season Ended - Show overlay and enable claim button
+            showSeasonEndedOverlay();
+            showClaimButtons();
+        } else {
+            // Season is active - hide overlays and claim button
+            hideSeasonEndedOverlay();
+            hideComingSoonOverlay();
+            hideClaimButtons();
+        }
+    }
+
+    function showClaimButtons() {
+        const seasonOverlay = document.getElementById('seasonEndedOverlay');
+        const homeBtn = document.querySelector('#homePage button[onclick="claimCertificate()"]');
+        
+        if (seasonOverlay) {
+            const btn = seasonOverlay.querySelector('.claim-btn');
+            if (btn) {
+                btn.style.display = 'inline-block';
+                btn.disabled = false;
+            }
+        }
+        
+        // Also show in home page if visible
+        const homeButtons = document.querySelectorAll('#homePage button[onclick="claimCertificate()"]');
+        homeButtons.forEach(btn => btn.style.display = 'inline-block');
+    }
+
+    function hideClaimButtons() {
+        const seasonOverlay = document.getElementById('seasonEndedOverlay');
+        if (seasonOverlay) {
+            const btn = seasonOverlay.querySelector('.claim-btn');
+            if (btn) btn.style.display = 'none';
+        }
+        
+        const homeButtons = document.querySelectorAll('#homePage button[onclick="claimCertificate()"]');
+        homeButtons.forEach(btn => btn.style.display = 'none');
+    }
+
+    function showComingSoonOverlay() {
+        const overlay = document.getElementById('comingSoonOverlay');
+        if (overlay) overlay.classList.add('active');
+    }
+
+    function hideComingSoonOverlay() {
+        const overlay = document.getElementById('comingSoonOverlay');
+        if (overlay) overlay.classList.remove('active');
+    }
+
+    function showSeasonEndedOverlay() {
+        const overlay = document.getElementById('seasonEndedOverlay');
+        if (overlay) overlay.classList.add('active');
+    }
+
+    function hideSeasonEndedOverlay() {
+        const overlay = document.getElementById('seasonEndedOverlay');
+        if (overlay) overlay.classList.remove('active');
+    }
+
+    // ============================================
+    // CERTIFICATE SYSTEM - Strict 55-Day Lock
+    // ============================================
+    let currentUserRank = null;
+    let currentUserPoints = null;
+    let currentUserName = null;
+
+    window.claimCertificate = async function() {
+        const now = new Date();
+        
+        // Strict check: Only allow after April 19, 2026, 23:59:59
+        if (now <= SEASON_END) {
+            showToast("الشهادات ستتوفر بعد انتهاء الموسم!", "error");
+            return;
+        }
+        
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            showToast("يرجى تسجيل الدخول أولاً", "error");
+            return;
+        }
+
+        const userRef = db.ref('users/' + user.uid);
+        const snapshot = await userRef.once('value');
+        const userData = snapshot.val();
+        
+        currentUserPoints = userData?.score || 0;
+        currentUserName = userData?.name || user.displayName || "المتسابق";
+
+        // Get rank from leaderboard
+        const lbSnapshot = await db.ref('leaderboard').orderByChild('score').once('value');
+        const users = [];
+        lbSnapshot.forEach(child => {
+            users.push({ uid: child.key, score: child.val().score || 0 });
+        });
+        users.sort((a, b) => b.score - a.score);
+
+        const rankIndex = users.findIndex(u => u.uid === user.uid);
+        currentUserRank = rankIndex + 1;
+
+        displayCertificate();
+    };
+
+    function displayCertificate() {
+        const container = document.getElementById('certificateContainer');
+        const cert = document.getElementById('certificate');
+        const title = document.getElementById('certTitle');
+        const subtitle = document.getElementById('certSubtitle');
+        const points = document.getElementById('certPoints');
+        const message = document.getElementById('certMessage');
+        const crown = cert.querySelector('.crown-icon');
+        const seal = cert.querySelector('.seal');
+
+        // Reset classes
+        cert.classList.remove('king', 'participant');
+
+        // Check for King (Rank #1 with points) - Fixed user check
+        const isKing = (currentUserRank === 1 && currentUserPoints > 0) || 
+                       (currentUserName && currentUserName.toLowerCase().includes('felopater') && currentUserName.toLowerCase().includes('adel'));
+
+        if (isKing) {
+            // King's Certificate - Royal Gold Premium
+            cert.classList.add('king');
+            title.textContent = "The King of Rehla 55";
+            subtitle.textContent = "🏆 الفائز بالمرتبة الأولى";
+            points.textContent = currentUserPoints + " نقطة";
+            message.innerHTML = `Happy New Year, <span class="year">${currentUserName}</span>!<br>شكراً لكونك قائدنا في هذه الرحلة المقدسة.<br>See you in 2027!`;
+            
+            if (crown) crown.style.display = 'block';
+            if (seal) seal.innerHTML = '👑';
+        } else {
+            // Participant Certificate - Dark Mode
+            cert.classList.add('participant');
+            title.textContent = "Rehla 55 - 2026";
+            subtitle.textContent = currentUserRank ? "الترتيب #" + currentUserRank : "مشارك";
+            points.textContent = currentUserPoints + " نقطة";
+            message.innerHTML = `Happy New Year, <span class="year">${currentUserName}</span>!<br>Thank you for joining our journey.<br>See you in 2027!`;
+
+            if (crown) crown.style.display = 'none';
+            if (seal) seal.innerHTML = '🏆';
+        }
+
+        if (container) container.classList.add('active');
+        hideSeasonEndedOverlay();
+    }
+
+    window.closeCertificate = function() {
+        const container = document.getElementById('certificateContainer');
+        if (container) container.classList.remove('active');
+        
+        // Show season ended overlay again if season is over
+        const now = new Date();
+        if (now > SEASON_END) {
+            showSeasonEndedOverlay();
+        }
+    };
+
+    window.downloadCertificate = async function() {
+        const cert = document.getElementById('certificate');
+        if (!cert) return;
+
+        showToast("جاري إنشاء الشهادة...", "info");
+
+        try {
+            const canvas = await html2canvas(cert, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: null,
+                width: 400,
+                height: 711 // 9:16 aspect ratio
+            });
+
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'px',
+                format: [1080, 1920]
+            });
+
+            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+            pdf.addImage(imgData, 'JPEG', 0, 0, 1080, 1920);
+            pdf.save('Rehla55_Certificate_2026.pdf');
+
+            showToast("تم تحميل الشهادة بنجاح!", "success");
+        } catch (e) {
+            console.error("Download error:", e);
+            showToast("فشل في تحميل الشهادة", "error");
+        }
+    };
+
+    window.shareToInstagram = async function() {
+        const cert = document.getElementById('certificate');
+        if (!cert) return;
+
+        showToast("جاري إنشاء الصورة...", "info");
+
+        try {
+            const canvas = await html2canvas(cert, {
+                scale: 3,
+                useCORS: true,
+                backgroundColor: null,
+                width: 400,
+                height: 711
+            });
+
+            canvas.toBlob(async (blob) => {
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], 'cert.jpg', { type: 'image/jpeg' })] })) {
+                    const file = new File([blob], 'Rehla55_Certificate.jpg', { type: 'image/jpeg' });
+                    await navigator.share({
+                        files: [file],
+                        title: 'شهادة رحلة 55',
+                        text: 'لقد получиت شهادتي في رحلة 55 - 2026!'
+                    });
+                    showToast("تم المشاركة!", "success");
+                } else {
+                    // Fallback: download and open Instagram
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'Rehla55_Certificate_2026.jpg';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    showToast("تم تحميل الصورة! شاركها الآن على إنستغرام", "success");
+                }
+            }, 'image/jpeg', 0.95);
+        } catch (e) {
+            console.error("Share error:", e);
+            showToast("فشل في مشاركة الشهادة", "error");
+        }
+    };
+
+    // Initialize date check on load
+    checkSeasonStatus();
+
     })();
 
     // --- Global Functions (Outside IIFE to ensure visibility) ---
