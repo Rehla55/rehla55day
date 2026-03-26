@@ -765,8 +765,24 @@
     // ============================================
     // 2026 SEASON DATE CONTROL SYSTEM
     // ============================================
-    const SEASON_START = new Date("2026-02-23T00:00:00");
-    const SEASON_END = new Date("2026-04-19T23:59:59");
+    let SEASON_START = new Date("2026-02-23T00:00:00");
+    let SEASON_END = new Date("2026-04-19T23:59:59");
+
+    // اسحب البيانات من المسار صح في الفايربيز
+    db.ref('config').once('value').then((snapshot) => {
+        const config = snapshot.val();
+        
+        if (config && config.startDate) {
+            console.log("Start Date found: " + config.startDate);
+            SEASON_START = new Date(config.startDate);
+            if (config.endDate) {
+                SEASON_END = new Date(config.endDate);
+            }
+            checkSeasonStatus();
+        } else {
+            console.warn("No start date in config! Using manual dates...");
+        }
+    });
 
     function checkSeasonStatus() {
         const now = new Date();
