@@ -67,7 +67,7 @@
         `;
         banner.innerHTML = `
             <div style="font-size: 1.3rem; margin-bottom: 8px;">
-                ✝️ <strong>أسبوع三郎 الفصح المقدس</strong> ✝️
+                ✝️ <strong>أسبوع三郎 الالام</strong> ✝️
             </div>
             <div id="countdownTimer" style="font-size: 1.5rem; font-weight: bold;">
                 جاري التحميل...
@@ -100,7 +100,7 @@
         `;
         banner.innerHTML = `
             <div style="font-size: 1.2rem;">
-                ✝️ <strong>أسبوع三郎 الفصح المقدس</strong> ✝️
+                ✝️ <strong>أسبوع三郎 الالام</strong> ✝️
             </div>
             <div style="font-size: 0.85rem; color: #ccc; margin-top: 3px;">
                 5 - 12 أبريل 2026

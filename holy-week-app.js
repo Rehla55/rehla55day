@@ -168,7 +168,7 @@
             <div class="countdown-wrapper">
                 <div class="countdown-header">
                     <span class="cross-icon-animated">☦</span>
-                    <h2>أسبوع الفصح المقدس</h2>
+                    <h2>أسبوع الالام</h2>
                     <span class="cross-icon-animated">☦</span>
                 </div>
                 <div class="countdown-subtitle">تحدٍّ روحاني خاص قريباً</div>
@@ -272,7 +272,7 @@
                 <div class="holy-week-announcement">
                     <span class="banner-cross">☦</span>
                     <div class="banner-text">
-                        <h3>أسبوع الفصح المقدس</h3>
+                        <h3>أسبوع الالام</h3>
                         <p>5 - 12 أبريل 2026</p>
                     </div>
                     <span class="banner-cross">☦</span>
@@ -375,7 +375,7 @@
             if (isResurrectionSunday()) {
                 window.showToast('✝ المسيح قام! كل عام وأنتم بخير!', 'success');
             } else {
-                window.showToast('✝ أسبوع الفصح المقدس بدأ! أسئلة روحانية خاصة', 'success');
+                window.showToast('✝ أسبوع الالام بدأ! أسئلة روحانية خاصة', 'success');
             }
         }, 2000);
     }

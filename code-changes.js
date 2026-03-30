@@ -47,7 +47,7 @@
         area.innerHTML = `
             <div class="holy-week-notification">
                 <span class="cross-icon">✝️</span>
-                <strong>أسبوع三郎 الفصح المقدس</strong>
+                <strong>أسبوع三郎 الالام</strong>
                 <span class="cross-icon">✝️</span>
                 <p style="margin: 10px 0 0 0; font-size: 0.9rem;">
                     أسئلة روحانية خاصة هذا الأسبوع!
