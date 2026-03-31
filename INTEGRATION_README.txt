@@ -2,7 +2,7 @@
  * =====================================================
  * INTEGRATION GUIDE - Holy Week Event
  * =====================================================
- * For: Rehla 55 (https://rehla55.github.io/rehla55day/)
+ * For: Rehla 55 (https://rehla55.github.io/)
  * =====================================================
  * 
  * FOLLOW THESE STEPS TO INTEGRATE:
