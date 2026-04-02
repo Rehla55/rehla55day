@@ -1,0 +1,88 @@
+/**
+ * =====================================================
+ * INTEGRATION GUIDE - Holy Week Event
+ * =====================================================
+ * Rehla 55 - Complete Holy Week & Resurrection Event
+ * April 5-12, 2026
+ * =====================================================
+ */
+
+STEP 1: ADD CSS LINK (in <head>)
+-------------------------------
+<link rel="stylesheet" href="holy-week-styles.css">
+
+STEP 2: ADD JAVASCRIPT FILE (before </body>)
+-------------------------------------------
+<script src="holy-week-app.js"></script>
+
+STEP 3: UPDATE script.js - loadDailyContent function
+----------------------------------------------------
+Find (around line 533):
+    db.ref('questions/' + day).once('value')
+
+Replace with:
+    var questionsPath = window.getQuestionsPath ? window.getQuestionsPath() : 'questions';
+    db.ref(questionsPath + '/' + day).once('value')
+
+STEP 4: UPDATE FIREBASE DATABASE
+--------------------------------
+1. Go to Firebase Console > Realtime Database
+2. Create root node: event_2026
+3. Copy content from holy-week-questions.json
+
+Or use Firebase CLI:
+    firebase database:set /event_2026 ./holy-week-questions.json
+
+STEP 5: SHOW RESULT MODAL
+--------------------------
+After answer submission, call:
+    window.showHolyWeekResultModal(questionData, isCorrect);
+
+
+/**
+ * =====================================================
+ * FILE STRUCTURE
+ * =====================================================
+ *
+ * index.html                    - Updated with CSS & JS links
+ * script.js                     - Modified for path switching
+ * holy-week-app.js              - Event logic & theme switching
+ * holy-week-styles.css          - Purple & Gold + Resurrection themes
+ * holy-week-questions.json      - Complete 8 days of questions
+ */
+
+
+/**
+ * =====================================================
+ * THEMES OVERVIEW
+ * =====================================================
+ *
+ * BEFORE APRIL 5:
+ * - Normal theme
+ * - Countdown timer with Days:Hours:Minutes:Seconds
+ *
+ * APRIL 5-11 (Holy Week):
+ * - Deep Purple (#4A148C) + Cream (#FFFDE7) + Gold (#D4AF37)
+ * - Cross watermark background
+ * - ☦ badges on leaderboard
+ *
+ * APRIL 12 (Resurrection Sunday):
+ * - White + Gold celebration theme
+ * - "المسيح قام!" banner
+ * - Special resurrection styling
+ */
+
+
+/**
+ * =====================================================
+ * TESTING
+ * =====================================================
+ *
+ * To test specific dates, modify holy-week-app.js:
+ *
+ * CONFIG.eventStart = new Date('2026-04-05T00:00:00');
+ * CONFIG.eventEnd = new Date('2026-04-13T00:00:00');
+ *
+ * Or for testing resurrection:
+ * CONFIG.eventStart = new Date('2026-04-11T00:00:00');
+ */

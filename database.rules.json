@@ -1,0 +1,47 @@
+{
+  "rules": {
+    "users": {
+      ".read": "root.child('users').child(auth.uid).child('role').val() === 'admin'",
+      "$uid": {
+        ".read": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+        ".write": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+        "score": {
+          ".validate": "root.child('users').child(auth.uid).child('role').val() === 'admin' || (newData.isNumber() && (!data.exists() ? newData.val() == 0 : newData.val() == data.val()))"
+        },
+        "role": {
+          ".validate": "root.child('users').child(auth.uid).child('role').val() === 'admin' || (newData.val() === 'user' && !data.exists()) || (data.exists() && newData.val() == data.val())"
+        },
+        "quiz_start_time": {
+          ".validate": "newData.val() === now || newData.val() === null"
+        },
+        "read_status": {
+          ".validate": "newData.isBoolean()"
+        },
+        "lastAnsweredDay": {
+          ".validate": "root.child('users').child(auth.uid).child('role').val() === 'admin' || (newData.isNumber() && (!data.exists() || newData.val() == data.val()))"
+        },
+        "photoURL": {
+          ".validate": "newData.isString() && newData.val().startsWith('https://firebasestorage.googleapis.com')"
+        }
+      }
+    },
+    "leaderboard": {
+      ".read": "true",
+      "$uid": {
+        ".write": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+        ".validate": "root.child('users').child(auth.uid).child('role').val() === 'admin' || (newData.hasChildren(['name', 'score']) && (newData.child('score').val() == 0 || newData.child('score').val() == (root.child('users').child($uid).child('score').exists() ? root.child('users').child($uid).child('score').val() : 0)))"
+      }
+    },
+    "submissions": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid && !data.exists() && root.child('users').child($uid).child('role').val() !== 'banned'",
+        ".validate": "newData.hasChildren(['day', 'choice', 'timestamp']) && newData.child('timestamp').val() === now"
+      }
+    },
+    "questions": {
+      ".read": "true",
+      ".write": "root.child('users').child(auth.uid).child('role').val() === 'admin'"
+    }
+  }
+}

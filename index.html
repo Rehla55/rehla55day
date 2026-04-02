@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <link rel="icon" type="image/png" sizes="48x48" href="img/icon.jpeg">
+    <link rel="icon" type="image/png" href="img/icon.jpeg">
+    <link rel="shortcut icon" type="image/png" href="img/icon.jpeg">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#d4af37">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="رحلة 55">
+    <link rel="apple-touch-icon" href="img/icon.jpeg">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://unpkg.com/mailgo@0.12.2/dist/mailgo.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4755909548836402"
+     crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رحلة الـ 55 يوم</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Reem+Kufi:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=notifications" />
+    <style>
+        :root { --dark-blue: #001a33; --gold: #d4af37; --white: #ffffff; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; transition: all 0.3s ease; }
+        .material-symbols-outlined.filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        body { margin: 0; padding: 20px 0; font-family: 'Amiri', serif; background: radial-gradient(circle, #003366, var(--dark-blue)); color: var(--white); min-height: 100vh; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
+        .page { display: none; width: 90%; max-width: 500px; margin: 0 auto; text-align: center; animation: fadeIn 0.8s ease; }
+        .active { display: block; }
+        .card { background: rgba(0, 26, 51, 0.95); padding: 30px; border-radius: 30px; border: 3px solid var(--gold); box-shadow: 0 0 30px rgba(212, 175, 55, 0.5); position: relative; margin-top: 20px; width: 100%; box-sizing: border-box; }
+        .score-box { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); background: var(--gold); color: var(--dark-blue); padding: 8px 25px; border-radius: 50px; font-weight: bold; border: 2px solid var(--white); z-index: 10; }
+        .leaderboard-card { margin-top: 40px; width: 90%; max-width: 500px; }
+        .leaderboard-list { text-align: right; margin-top: 15px; }
+        .leaderboard-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid rgba(212,175,55,0.2); }
+        .leaderboard-item.current-user { background: rgba(212, 175, 55, 0.2); border-radius: 10px; border: 1px solid var(--gold); }
+        .rank { font-weight: bold; color: var(--gold); margin-left: 10px; }
+        #dayProgressBar { width: 100%; height: 100%; background: var(--gold); transition: width 1s linear; }
+        #dayTimeRemaining { font-size: 0.8rem; color: var(--gold); margin-bottom: 15px; font-family: sans-serif; }
+        h1 { color: var(--gold); font-family: 'Amiri'; margin-bottom: 20px; }
+        h2 { color: var(--gold); font-family: 'Reem Kufi'; margin-bottom: 20px; }
+        .daily-frame { border: 4px double var(--gold); padding: 20px; border-radius: 15px; background: rgba(255,255,255,0.05);}
+        .daily-text { color: var(--gold); font-size: 1.5rem; font-weight: bold; margin: 0; }
+        .explanation { font-size: 1.1rem; color: #ddd; margin-top: 10px; border-top: 1px solid #444; padding-top: 10px; line-height: 1.6; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: transparent; border: none; border-bottom: 2px solid var(--gold); color: white; text-align: center; font-size: 18px; box-sizing: border-box; }
+        #passHintContainer { text-align: left; margin: 10px 15px; font-family: sans-serif; font-size: 13px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px; }
+        button { width: 100%; padding: 15px; margin-top: 15px; background: var(--gold); border: none; border-radius: 50px; color: var(--dark-blue); font-weight: bold; font-size: 1.2rem; cursor: pointer; transition: 0.3s; }
+        button:hover { background: var(--white); transform: scale(1.03); }
+        .option-btn { background: rgba(255,255,255,0.1); color: var(--white); border: 1px solid var(--gold); margin: 8px 0; }
+        #timerDisplay { font-size: 1.2rem; color: #ff4444; font-weight: bold; margin-bottom: 10px; }
+        .share-container { display: flex; justify-content: center; margin: 30px 0; }
+        .share-btn { background: linear-gradient(45deg, var(--gold), #f1c40f); color: #000 !important; width: 85%; padding: 18px; border-radius: 15px; font-weight: bold; text-decoration: none; box-shadow: 0 0 20px var(--gold); animation: pulse 2s infinite; display: flex; align-items: center; justify-content: center; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        footer { width: 90%; max-width: 500px; background: rgba(0, 26, 51, 0.95); padding: 15px; border: 3px solid var(--gold); border-radius: 20px; text-align: center; margin: 40px 0 20px 0; box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); font-size: 1.1rem; box-sizing: border-box; color: #ddd; }
+        footer a { color: var(--gold); text-decoration: none; font-weight: bold; }
+        footer a:hover { text-decoration: underline; }
+        header { width: 90%; max-width: 500px; background: rgba(0, 26, 51, 0.95); padding: 15px; border: 3px solid var(--gold); border-radius: 20px; text-align: center; margin: 40px 0 20px 0; box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); font-size: 1.1rem; box-sizing: border-box; color: gold; }
+        header a { color: var(--gold); text-decoration: none; font-weight: bold; }
+        #toastContainer { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 1000; width: 90%; max-width: 400px; pointer-events: none; }
+        .toast { background: rgba(0, 26, 51, 0.95); color: white; padding: 15px 25px; border-radius: 15px; border: 2px solid var(--gold); margin-top: 10px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5); animation: toastIn 0.5s ease forwards, toastOut 0.5s ease 3.5s forwards; pointer-events: auto; }
+        .toast.error { border-color: #ff4444; color: #ff4444; }
+        .toast.success { border-color: #00ff00; color: #00ff00; }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes toastOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
+        .google-btn-container { width: 100%;display: flex;justify-content: center;align-items: center;margin-top: 20px;min-height: 44px;}
+        .score-card-combined { position: absolute;top: -25px;left: 50%;transform: translateX(-50%);background: var(--gold);color: var(--dark-blue); display: flex;align-items: center;justify-content: center;gap: 10px;padding: 5px 20px 5px 10px;border-radius: 50px;font-weight: bold;border: 2px solid white;z-index: 10;box-shadow: 0 4px 10px rgba(0,0,0,0.3);min-width: 150px; }
+        .score-card-logo { width: 40px;height: 40px;border-radius: 50%;object-fit: cover;border: 2px solid white;background-color: white; }
+        .score-card-text { font-size: 1.1rem;white-space: nowrap;}
+        .score-card-combined { padding: 2px 20px 2px 5px;display: flex;align-items: center;justify-content: space-between;min-width: 140px; }
+        .score-card-combined { display: flex;align-items: center;justify-content: center; gap: 8px; padding: 5px 15px; min-width: 140px; }
+        .site-icon-style { width: 32px;height: 32px;border-radius: 50%;object-fit: cover;border: 1px solid var(--gold); }
+        #policyModal { display: none; position: fixed; inset: 0; z-index: 9999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        #policyModal.active { display: flex; }
+        #policyModalBackdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); }
+        #policyModalCard { position: relative; background: rgba(0, 20, 45, 0.98); border: 3px solid var(--gold); border-radius: 24px; box-shadow: 0 0 40px rgba(212,175,55,0.5); width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto; padding: 30px 25px; box-sizing: border-box; animation: modalPop 0.35s cubic-bezier(.22,1,.36,1); }
+        #iosInstallModal { display: none; position: fixed; inset: 0; z-index: 9999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        #iosInstallModal.active { display: flex; }
+        #iosInstallModalBackdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); }
+        #iosInstallModalCard { position: relative; background: rgba(0, 20, 45, 0.98); border: 3px solid var(--gold); border-radius: 24px; box-shadow: 0 0 40px rgba(212,175,55,0.5); width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto; padding: 30px 25px; box-sizing: border-box; animation: modalPop 0.35s cubic-bezier(.22,1,.36,1); }
+        #shareModal { display: none; position: fixed; inset: 0; z-index: 9999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        #shareModal.active { display: flex; }
+        #shareModalBackdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); }
+        #shareModalCard { position: relative; background: rgba(0, 20, 45, 0.98); border: 3px solid var(--gold); border-radius: 24px; box-shadow: 0 0 40px rgba(212,175,55,0.5); width: 100%; max-width: 400px; padding: 25px; box-sizing: border-box; animation: modalPop 0.35s cubic-bezier(.22,1,.36,1); }
+        #qrModal { display: none; position: fixed; inset: 0; z-index: 9999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        #qrModal.active { display: flex; }
+        #qrModalBackdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); }
+        #qrModalCard { position: relative; background: rgba(0, 20, 45, 0.98); border: 3px solid var(--gold); border-radius: 24px; box-shadow: 0 0 40px rgba(212,175,55,0.5); width: 100%; max-width: 350px; padding: 25px; box-sizing: border-box; animation: modalPop 0.35s cubic-bezier(.22,1,.36,1); }
+        @keyframes modalPop { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .header-content { display: flex; align-items: center; justify-content: left; gap: 10px; }
+
+        /* Certificate Overlay Styles */
+        .season-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .season-overlay.active { display: flex; }
+        .season-overlay-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .season-overlay-content {
+            position: relative;
+            background: rgba(0, 26, 51, 0.95);
+            border: 3px solid var(--gold);
+            border-radius: 30px;
+            padding: 40px 30px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.5);
+            animation: modalPop 0.4s cubic-bezier(.22,1,.36,1);
+        }
+
+        /* Claim Button */
+        .claim-btn {
+            background: linear-gradient(135deg, #d4af37, #f1c40f);
+            color: #001a33;
+            font-weight: bold;
+            font-size: 1.1rem;
+            padding: 18px 30px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.6);
+            transition: all 0.3s ease;
+        }
+        .claim-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 35px rgba(212, 175, 55, 0.8);
+        }
+
+        /* Certificate Container */
+        .certificate-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10001;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .certificate-container.active { display: flex; }
+        .certificate-wrapper {
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        .certificate {
+            width: 100%;
+            aspect-ratio: 9/16;
+            border-radius: 20px;
+            padding: 30px 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* King's Certificate - Royal Gold Theme */
+        .certificate.king {
+            background: linear-gradient(135deg, #1a0f00, #2d1a00);
+            border: 4px solid #ffd700;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6), inset 0 0 60px rgba(255, 215, 0, 0.15);
+        }
+        .certificate.king::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(255, 215, 0, 0.1), transparent 30%);
+            animation: rotate 4s linear infinite;
+        }
+        @keyframes rotate { 100% { transform: rotate(360deg); } }
+        .certificate.king .crown-icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 15px #ffd700);
+            animation: pulse 2s infinite;
+        }
+        .certificate.king h2 {
+            color: #ffd700;
+            font-size: 1.8rem;
+            font-family: 'Amiri', serif;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            margin: 10px 0;
+        }
+        .certificate.king .subtitle {
+            color: #ffd700;
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .certificate.king .points {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ffd700;
+            margin: 20px 0;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+        .certificate.king .message {
+            color: #fff;
+            font-size: 1rem;
+            line-height: 1.6;
+            max-width: 280px;
+        }
+
+        /* ===============================
+           PREMIUM KING'S CERTIFICATE
+           =============================== */
+        .certificate.king {
+            background: linear-gradient(145deg, #0a0a0a, #1a1a1a);
+            border: 5px solid;
+            border-image: linear-gradient(135deg, #ffd700, #b8860b, #ffd700) 1;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.4), 0 0 100px rgba(255, 215, 0, 0.2), inset 0 0 80px rgba(255, 215, 0, 0.08);
+            position: relative;
+        }
+        .certificate.king::before {
+            content: '';
+            position: absolute;
+            inset: 10px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 15px;
+            pointer-events: none;
+        }
+        .certificate.king::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L30 60M0 30L60 30' stroke='%23ffd700' stroke-width='0.5' opacity='0.1'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+        .certificate.king .crown-icon {
+            font-size: 4.5rem;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 20px #ffd700);
+            animation: pulse 2s infinite;
+            position: relative;
+            z-index: 2;
+        }
+        .certificate.king .seal {
+            position: absolute;
+            bottom: 30px;
+            right: 20px;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #ffd700, #b8860b);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            font-size: 2rem;
+            z-index: 2;
+        }
+        .certificate.king h2 {
+            color: #ffd700;
+            font-size: 2rem;
+            font-family: 'Amiri', serif;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+            margin: 15px 0 5px 0;
+            position: relative;
+            z-index: 2;
+            letter-spacing: 2px;
+        }
+        .certificate.king .subtitle {
+            color: #ffd700;
+            font-size: 1.3rem;
+            opacity: 0.9;
+            font-weight: bold;
+            position: relative;
+            z-index: 2;
+        }
+        .certificate.king .points {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ffd700;
+            margin: 25px 0;
+            text-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+            position: relative;
+            z-index: 2;
+        }
+        .certificate.king .message {
+            color: #fff;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            max-width: 300px;
+            position: relative;
+            z-index: 2;
+        }
+        .certificate.king .message .year {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+
+        /* ===============================
+           PREMIUM PARTICIPANT CERTIFICATE
+           =============================== */
+        .certificate.participant {
+            background: linear-gradient(160deg, #0d1b2a, #1b263b, #0d1b2a);
+            border: 3px solid var(--gold);
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.3), inset 0 0 60px rgba(212, 175, 55, 0.05);
+            position: relative;
+        }
+        .certificate.participant::before {
+            content: '';
+            position: absolute;
+            inset: 8px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px;
+            pointer-events: none;
+        }
+        .certificate.participant .seal {
+            position: absolute;
+            bottom: 25px;
+            right: 20px;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--gold), #b8860b);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+            font-size: 1.6rem;
+            z-index: 2;
+        }
+        .certificate.participant h2 {
+            color: var(--gold);
+            font-size: 1.8rem;
+            font-family: 'Reem Kufi', sans-serif;
+            margin: 15px 0 8px 0;
+            position: relative;
+            z-index: 2;
+            letter-spacing: 1px;
+        }
+        .certificate.participant .subtitle {
+            color: #8892a0;
+            font-size: 1.1rem;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 2;
+        }
+        .certificate.participant .points {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--gold);
+            margin: 18px 0;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+            position: relative;
+            z-index: 2;
+        }
+        .certificate.participant .message {
+            color: #c0c8d4;
+            font-size: 1rem;
+            line-height: 1.7;
+            max-width: 280px;
+            position: relative;
+            z-index: 2;
+        }
+        .certificate.participant .message .year {
+            color: var(--gold);
+            font-weight: bold;
+        }
+
+        /* Certificate Actions */
+        .cert-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        .cert-actions button {
+            padding: 14px 24px;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        .download-btn {
+            background: var(--gold);
+            color: #001a33;
+        }
+        .download-btn:hover {
+            background: #fff;
+            transform: scale(1.05);
+        }
+        .share-insta-btn {
+            background: linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045);
+            color: white;
+        }
+        .share-insta-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(253, 29, 29, 0.5);
+        }
+        .close-cert-btn {
+            background: transparent;
+            border: 1px solid #555;
+            color: #aaa;
+        }
+        .close-cert-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+    </style>
+    <meta name="google-site-verification" content="BgkRX0bngBqYQL0DvpLkIkmzf1fS3Zezb77v_7LTEJs" />
+</head>
+<body>
+    <script>
+        function overlayIn() {
+            var m = document.getElementById('policyModal');
+            if (m) { m.classList.add('active'); document.body.style.overflow = 'hidden'; }
+        }
+        function overlayOut() {
+            var m = document.getElementById('policyModal');
+            if (m) { m.classList.remove('active'); document.body.style.overflow = ''; }
+        }
+    </script>
+        <header>
+    <div class="header-content" style="display: flex; direction: ltr; align-items: center; justify-content: space-between; width: 100%;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 46px; height: 46px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; border: 2px solid var(--gold);">
+                <img src="img/icon.jpeg" style="width: 36px; height: 36px; border-radius: 50%;">
+            </div>
+            <div id="userNameDisplay" style="font-size: 1.15rem; color: var(--gold); font-weight: bold; white-space: nowrap; overflow: visible;">
+            </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div id="headerScore" style="font-weight: bold; color: var(--gold); font-size: 1.15rem; white-space: nowrap;">
+            </div>
+            <button onclick="toggleNotifications()" style="background: none; border: none; cursor: pointer; color: var(--gold); padding: 0; line-height: 0; transform: translateY(-7px);">
+                <span id="notificationIcon" class="material-symbols-outlined" style="font-size: 30px;">notifications</span>
+            </button>
+        </div>
+    </div>
+</header>
+<body>
+    <div id="toastContainer"></div>
+    <div id="loginPage" class="page active">
+        <div class="card">
+            <h1>† Login †</h1>
+            <input type="email" id="loginEmail" placeholder="Email">
+            <input type="password" id="loginPass" placeholder="Password">
+            <button onclick="login()">Login</button>
+<div id="g_id_onload"
+    data-client_id="39933750061-4c9grkdlmauq59am3k6db6h4f2pmq01r.apps.googleusercontent.com"
+    data-context="signin" 
+    data-ux_mode="popup" 
+    data-callback="signInWithGoogle" 
+    data-auto_prompt="false">
+</div>
+            <div class="google-btn-container">
+                <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline"
+                    data-text="signin_with" data-size="large" data-logo_alignment="left">
+                </div>
+            </div>
+            <p onclick="showPage('registerPage')" style="cursor:pointer; margin-top:20px;">Create New Account</p>
+            <p onclick="showPage('forgotPage')" style="color:var(--gold); cursor:pointer;">I Forgot My Password</p>
+        </div>
+    </div>
+    <div id="registerPage" class="page">
+        <div class="card">
+            <h1>† Sign Up †</h1>
+            <input type="text" id="regName" placeholder="Name" maxlength="50">
+            <input type="email" id="regEmail" placeholder="Email">
+            <input type="password" id="regPass" placeholder="Creat New Password"
+                oninput="checkPassRequirements(this.value)">
+            <div id="passHintContainer">
+                <div id="reqLen" style="color: #ff4444; margin-bottom: 5px;">✖ At least 6 characters</div>
+                <div id="reqCap" style="color: #ff4444; margin-bottom: 5px;">✖ At least one capital letter</div>
+                <div id="reqNum" style="color: #ff4444; margin-bottom: 5px;">✖ At least one number</div>
+            </div>
+            <button id="regBtn" onclick="register()">Start Journey</button>
+<div id="g_id_onload"
+    data-client_id="39933750061-4c9grkdlmauq59am3k6db6h4f2pmq01r.apps.googleusercontent.com"
+    data-context="signin" 
+    data-ux_mode="popup" 
+    data-callback="signInWithGoogle" 
+    data-auto_prompt="false">
+</div>
+            <div class="google-btn-container">
+                <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline"
+                    data-text="signup_with" data-size="large" data-logo_alignment="left">
+                </div>
+            </div>
+            <p onclick="showPage('loginPage')" style="cursor:pointer">Back to Login</p>
+        </div>
+    </div>
+    <div id="completeProfilePage" class="page">
+        <div class="card">
+            <h2>🎉 مرحبًا بك في الرحلة!</h2>
+            <p style="color:white; margin-bottom: 20px;">لقد قمت بتسجيل الدخول بنجاح. لإكمال إعداد حسابك، يرجى الموافقة
+                على شروط الاستخدام.</p>
+
+            <div
+                style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: right;">
+                <h4 style="color:var(--gold); margin: 0 0 10px 0;">📜 تذكير سريع:</h4>
+                <ul style="padding-right: 20px; font-size: 0.9rem; color: #ddd;">
+                    <li>الاحترام المتبادل في الأسماء والمشاركات.</li>
+                    <li>منع الغش أو استخدام مساعدات خارجية.</li>
+                    <li>المخالفة تؤدي للحظر الفوري.</li>
+                </ul>
+            </div>
+            <div
+                style="display: flex; align-items: center; justify-content: center; margin-top: 15px; font-size: 1rem;">
+                <input type="checkbox" id="googleAgreePolicy" style="width: auto; margin-left: 10px;">
+                <label for="googleAgreePolicy">أوافق على <a href="#" onclick="overlayIn(); return false;"
+                        style="color: var(--gold);">شروط الاستخدام</a></label>
+            </div>
+            <button onclick="finalizePolicyAgreement()">إتمام التسجيل والدخول 🚀</button>
+            <button onclick="logout()"
+                style="margin-top:10px; background:transparent; border:1px solid #ff4444; color:#ff4444; width:50%; font-size:0.9rem; border-radius: 50px; padding: 10px;">الخروج</button>
+        </div>
+    </div>
+    <div id="verifyEmailPage" class="page">
+        <div class="card">
+            <h2>📧 تفعيل الحساب</h2>
+            <p style="line-height: 1.7;">
+                تم إرسال رابط تفعيل إلى بريدك الإلكتروني. يرجى الضغط على الرابط الموجود في الرسالة لتنشيط حسابك.
+                <br><br>
+                <strong style="color:var(--gold);">تفقد صندوق الرسائل غير الهامة (Spam) إذا لم تجد الرسالة.</strong>
+            </p>
+            <button onclick="resendVerification()">إعادة إرسال الرابط</button>
+            <button onclick="location.reload()"
+                style="margin-top:10px; background:transparent; border:1px solid var(--gold); color:var(--gold);">تم
+                التفعيل، قم بتحديث الصفحة</button>
+            <button onclick="logout()"
+                style="margin-top:10px; background:transparent; border:1px solid #ff4444; color:#ff4444; width:50%; font-size:0.9rem;">الخروج</button>
+        </div>
+    </div>
+    <div id="bannedPage" class="page">
+        <div class="card" style="border-color: #ff4444;">
+            <h2 style="color:#ff4444;">🚫 تم غلق حسابك</h2>
+            <p>
+                لقد تم غلق هذا الحساب لمخالفته <a href="#" onclick="overlayIn(); return false;"
+                    style="color: var(--gold);">شروط الاستخدام</a>.
+                <br><br>
+                إذا كنت تعتقد أن هذا القرار غير صحيح، يمكنك التواصل مع الدعم الفني.
+            </p>
+        </div>
+    </div>
+    <!-- Policy Modal Overlay -->
+    <div id="policyModal">
+        <div id="policyModalBackdrop" onclick="overlayOut()"></div>
+        <div id="policyModalCard" style="text-align: right;">
+
+            <h2 style="text-align: center; color: var(--gold);">📜 سياسة الاستخدام</h2>
+            <p>
+                تهدف هذه المسابقة إلى توفير بيئة تنافسية وممتعة. للحفاظ على ذلك، يرجى الالتزام بالآتي:
+            </p>
+            <h4 style="color:var(--gold); margin-top: 20px;">1. المحتوى غير اللائق:</h4>
+            <ul style="padding-right: 20px;">
+                <li>يُمنع استخدام أسماء مستخدمين تحتوي على أي عبارات مسيئة، أو ألفاظ خارجة، أو تلميحات غير لائقة.</li>
+            </ul>
+            <h4 style="color:var(--gold); margin-top: 20px;">2. الغش واستغلال الثغرات:</h4>
+            <ul style="padding-right: 20px;">
+                <li>الهدف من المسابقة هو اختبار معلوماتك الشخصية. يُمنع منعاً باتاً استخدام أي وسائل للمساعدة في الإجابة
+                    (مثل البحث أثناء السؤال).</li>
+                <li>يُمنع محاولة استغلال أي ثغرات تقنية في الموقع للحصول على نقاط أو مزايا غير مستحقة. يقوم النظام
+                    بمراقبة الأوقات والسلوكيات غير الطبيعية.</li>
+            </ul>
+            <h4 style="color:var(--gold); margin-top: 20px;">إجراءات المخالفة:</h4>
+            <p>
+                أي حساب يتم اكتشاف مخالفته لهذه السياسات سيتم غلقه بشكل فوري ودون سابق إنذار، مع فقدان جميع النقاط
+                المسجلة.
+            </p>
+            <h4 style="color:var(--gold); margin-top: 20px;">استعمالك لهذا الموقع يثبت موافقتك على سياسة الاستخدام</h4>
+            <button onclick="overlayOut()" style="margin-top:20px;">فهمت، العودة ✅</button>
+        </div>
+    </div>
+    <!-- Share & Install Modal -->
+    <div id="shareModal">
+        <div id="shareModalBackdrop" onclick="closeShareModal()"></div>
+        <div id="shareModalCard">
+            <h3 style="color: var(--gold); margin-bottom: 20px; text-align: center;">📤 مشاركة وتثبيت</h3>
+            <button onclick="doNativeShare()" style="background: var(--gold); margin-bottom: 10px;">📤 مشاركة مع الأصدقاء</button>
+            <button onclick="copyLink()" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--gold); margin-bottom: 10px;">📋 نسخ الرابط</button>
+            <button onclick="showQRCode()" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--gold); margin-bottom: 10px;">📱 رمز QR</button>
+            <button onclick="installAppFromShare()" style="background: linear-gradient(135deg, var(--gold), #f1c40f); color: var(--dark-blue); font-weight: bold; margin-bottom: 10px;">📲 إضافة للتطبيق</button>
+            <button onclick="closeShareModal()" style="margin-top: 10px; background: transparent; border: 1px solid #666; color: #aaa;">إغلاق</button>
+        </div>
+    </div>
+    <!-- QR Code Modal -->
+    <div id="qrModal">
+        <div id="qrModalBackdrop" onclick="closeQRModal()"></div>
+        <div id="qrModalCard" style="text-align: center;">
+            <h3 style="color: var(--gold);">📱 امسح الرمز</h3>
+            <div id="qrcode" style="display: flex; justify-content: center; margin: 20px 0;"></div>
+            <p style="color: #aaa; font-size: 0.85rem;">امسح هذا الرمز بهاتفك للدخول للرحلة</p>
+            <button onclick="closeQRModal()" style="margin-top: 10px; background: transparent; border: 1px solid #666; color: #aaa;">إغلاق</button>
+        </div>
+    </div>
+    <!-- iOS Install Modal -->
+    <div id="iosInstallModal">
+        <div id="iosInstallModalBackdrop" onclick="closeIOSModal()"></div>
+        <div id="iosInstallModalCard" style="text-align: center;">
+            <img src="img/icon.jpeg" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 15px;">
+            <h2 style="color: var(--gold);">📲 إضافة إلى الشاشة الرئيسية</h2>
+            <p style="color: white; line-height: 1.6;">
+                لم إضافة التطبيق على iPhone، اتبع الخطوات التالية:
+            </p>
+            <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px; text-align: right; margin: 15px 0;">
+                <p style="color: var(--gold); margin: 10px 0;"><strong>1.</strong> اضغط على زر <span style="color: white;">📤 مشاركة</span></p>
+                <p style="color: var(--gold); margin: 10px 0;"><strong>2.</strong> مرر للأسفل واختر <span style="color: white;">"إضافة إلى الشاشة الرئيسية"</span></p>
+                <p style="color: var(--gold); margin: 10px 0;"><strong>3.</strong> اضغط <span style="color: white;">"إضافة"</span></p>
+            </div>
+            <button onclick="closeIOSModal()" style="margin-top:10px;">حسناً ✅</button>
+        </div>
+    </div>
+
+    <!-- Season Ended Overlay -->
+    <div id="seasonEndedOverlay" class="season-overlay">
+        <div class="season-overlay-backdrop"></div>
+        <div class="season-overlay-content">
+            <h2 style="color: var(--gold); font-size: 1.8rem; margin-bottom: 15px;">🏆 موسم 2026 انتهى!</h2>
+            <p style="color: white; line-height: 1.6; margin-bottom: 20px;">شكراً لمشاركتنا رحلة الـ 55 يوم. نلتقي في الموسم القادم!</p>
+            <button class="claim-btn" onclick="claimCertificate()" style="display: none;">🎖️ احصل على شهادتك</button>
+        </div>
+    </div>
+
+    <!-- Coming Soon Overlay -->
+    <div id="comingSoonOverlay" class="season-overlay">
+        <div class="season-overlay-backdrop"></div>
+        <div class="season-overlay-content">
+            <h2 style="color: var(--gold); font-size: 1.8rem; margin-bottom: 15px;">⏳ قادم قريباً!</h2>
+            <p style="color: white; line-height: 1.6;">موسم 2026 يبدأ في <strong style="color: var(--gold);">23 فبراير 2026</strong></p>
+            <p style="color: #aaa; margin-top: 20px;">نحن نعدك بتحديات روحية مميزة!</p>
+        </div>
+    </div>
+
+    <!-- Certificate Display -->
+    <div id="certificateContainer" class="certificate-container">
+        <div class="certificate-wrapper">
+            <div id="certificate" class="certificate">
+                <div class="crown-icon">👑</div>
+                <h2 id="certTitle">ملك رحلة 55</h2>
+                <p class="subtitle" id="certSubtitle">الترتيب #1</p>
+                <p class="points" id="certPoints">0 نقطة</p>
+                <p class="message" id="certMessage">شكراً لمشاركتنا رحلتك الروحية!</p>
+                <div class="seal">🏆</div>
+            </div>
+            <div class="cert-actions" id="certActions">
+                <button class="download-btn" onclick="downloadCertificate()">📥 تحميل PDF</button>
+                <button class="share-insta-btn" onclick="shareToInstagram()">📸 إنستغرام</button>
+                <button class="close-cert-btn" onclick="closeCertificate()">إغلاق</button>
+            </div>
+        </div>
+    </div>
+    <div id="forgotPage" class="page">
+        <div class="card">
+            <h2>Reset Password</h2>
+            <p>أدخل إيميلك وسنرسل لك رابطاً لتغيير كلمة السر فوراً</p>
+            <input type="email" id="resetEmail" placeholder="Your Email">
+            <button onclick="forgotPassword()">إرسال الرابط</button>
+            <p onclick="showPage('loginPage')" style="cursor:pointer">رجوع</p>
+        </div>
+    </div>
+    <div id="homePage" class="page">
+        <div class="card">
+            <div class="score-card-combined">
+                <div class="score-card-text">
+                    <div id="sundayTag" style="font-weight:bold;"></div>
+                </div>
+            </div>
+            <div style="margin-top:10px; color:var(--gold)">نهاية اليوم خلال:</div>
+            <div id="dayTimeRemaining">00:00:00</div>
+            <div id="sundaySpecialBox" style="display:none;"></div>
+            <div class="day-timer-container">
+                <div id="dayProgressBar"></div>
+            </div>
+            <div class="daily-frame" id="dailyFrame" style="display: none;"></div>
+            <div id="quizArea">
+                <div id="startQuizContainer" style="text-align: center; padding: 20px;">
+                    <h3 style="color: var(--gold); margin-bottom: 15px;">هل أنت مستعد لتحدي اليوم؟</h3>
+                    <p style="color: white; margin-bottom: 20px;">لديك 30 ثانية فقط للإجابة بمجرد البدء!</p>
+                    <button id="startQuizBtn" class="btn-primary" onclick="startQuiz()"
+                        style="background: var(--gold); border: none; border-radius: 50px; color: var(--dark-blue); font-weight: bold; font-size: 1.2rem; cursor: pointer; padding: 15px; width: 100%;">ابدأ
+                        المسابقة الآن 🚀</button>
+                </div>
+                <div id="quizContent" style="display: none;">
+                    <div id="timerDisplay">⏳ الوقت المتبقي: 30 ثانية</div>
+                    <h3 style="color:var(--gold)">سؤال اليوم:</h3>
+                    <p id="questionText" style="font-size:1.2rem;"></p>
+                    <div id="optionsContainer"></div>
+                </div>
+            </div>
+            <div id="adminContainer" style="display: flex; justify-content: center;">
+                <button id="adminBtn"
+                    style="display:none; background: #ff4444; color:white; border:none; border-radius:50px; padding:10px 20px; font-weight:bold; cursor:pointer; width:60%;"
+                    onclick="openAdminPanel()">⚙️ لوحة التحكم</button>
+            </div>
+            <div style="display: flex; justify-content: center; margin-top: 15px;">
+                <button onclick="claimCertificate()" style="background: linear-gradient(135deg, #d4af37, #f1c40f); color: #001a33; font-weight: bold; width: 85%; display: none;">🎖️ احصل على شهادتك</button>
+            </div>
+            <div class="share-container">
+                <a href="#" class="share-btn" onclick="shareApp()">📢 شير الرحلة لصحابك يستفيدوا</a>
+            </div>
+            <div style="display: flex; justify-content: center;">
+                <button onclick="logout()"
+                    style="background:transparent; color:var(--gold); border:1px solid var(--gold); width:40%; font-family: Amiri;">Log
+                    out</button>
+            </div>
+
+
+        </div>
+    </div>
+    <div id="adminPage" class="page">
+        <div class="card">
+            <h2 style="color:var(--gold);">🛡️ لوحة الإدارة</h2>
+            <div id="usersList"
+                style="text-align: right; max-height: 400px; overflow-y: auto; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 15px;">
+                <p id="loadingAdminText">جاري جلب بيانات المتسابقين...</p>
+            </div>
+            <button onclick="goToHome()">🔙 العودة للرئيسية</button>
+        </div>
+    </div>
+    <div id="profilePage" class="page">
+        <div class="card">
+            <h2 style="color:var(--gold);">👤 الملف الشخصي</h2>
+            <div style="margin: 20px 0;">
+                <img id="profileAvatar" src="img/icon.jpeg" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--gold);">
+            </div>
+            <div style="text-align: right; margin: 20px 0;">
+                <p style="color: #aaa; font-size: 0.9rem;">الاسم</p>
+                <p id="profileName" style="color: var(--gold); font-size: 1.3rem; font-weight: bold; margin: 5px 0;">جاري التحميل...</p>
+            </div>
+            <div style="text-align: right; margin: 20px 0;">
+                <p style="color: #aaa; font-size: 0.9rem;">البريد الإلكتروني</p>
+                <p id="profileEmail" style="color: white; font-size: 1rem; margin: 5px 0;">جاري التحميل...</p>
+            </div>
+            <div style="text-align: right; margin: 20px 0;">
+                <p style="color: #aaa; font-size: 0.9rem;">النقاط</p>
+                <p id="profileScore" style="color: var(--gold); font-size: 1.5rem; font-weight: bold; margin: 5px 0;">0</p>
+            </div>
+            <div style="text-align: right; margin: 20px 0;">
+                <p style="color: #aaa; font-size: 0.9rem;">التقدم في الرحلة (55 يوم)</p>
+                <div style="background: rgba(0,0,0,0.3); border-radius: 15px; height: 25px; overflow: hidden; margin: 10px 0;">
+                    <div id="profileProgressBar" style="background: linear-gradient(90deg, var(--gold), #f1c40f); height: 100%; width: 0%; transition: width 1s ease; border-radius: 15px;"></div>
+                </div>
+                <p id="profileDaysText" style="color: white; font-size: 0.95rem; margin: 5px 0;">0 / 55 يوم</p>
+            </div>
+            <button onclick="goToHome()" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--gold);">🔙 العودة للرئيسية</button>
+            <button onclick="logout()" style="background: transparent; color: #ff4444; border: 1px solid #ff4444; margin-top: 10px;">🚪 تسجيل الخروج</button>
+        </div>
+    </div>
+    <div id="leaderboardSection" class="leaderboard-card">
+        <div class="card">
+            <h2 style="text-align: center; font-size: xx-large;">قائمة الأبطال 🏆</h2>
+            <div id="leaderboardList" class="leaderboard-list">
+                <p style="text-align:center;">جاري تحميل القائمة...</p>
+            </div>
+        </div>
+    </div>
+    <img src="img/SiteImage.png" style="margin-top: 20px; max-width: 100%;">
+    <div style="text-align: center; margin-top: 20px; padding: 15px;">
+        <a href="mailto:rehla55day@gmail.com?subject=اقتراح أو شكوى" style="background: var(--gold); color: #001a33; font-size: 1.3rem; text-decoration: none; font-weight: bold; padding: 18px 40px; border-radius: 50px; display: inline-block; box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);">
+            ✉️ للمقترحات أو الشكاوى - تواصل معنا
+        </a>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
+    <link rel="stylesheet" href="holy-week-styles.css">
+    <script src="script.js?v=2.7"></script>
+    <script src="holy-week-app.js"></script>
+    <script>
+        window.showHolyWeekResultModal = function(data, isCorrect) {
+            const modal = document.createElement('div');
+            modal.id = 'holyWeekResultModal';
+            modal.className = 'holy-week-modal-overlay';
+            
+            modal.innerHTML = `
+                <div class="holy-week-modal-content">
+                    <div class="modal-header">
+                        <span class="modal-cross">☦</span>
+                        <h2>${data.dayName}</h2>
+                        <span class="modal-cross">☦</span>
+                    </div>
+                    <div class="modal-scripture">
+                        <p class="scripture-ref">${data.scriptureReference}</p>
+                    </div>
+                    <div class="modal-explanation">
+                        <h3>الشرح اللاهوتي</h3>
+                        <p>${data.theologicalExplanation}</p>
+                    </div>
+                    <div class="modal-spiritual">
+                        <div class="spiritual-icon">✝</div>
+                        <p class="spiritual-message">${data.spiritualMessage}</p>
+                    </div>
+                    <div class="modal-result ${isCorrect ? 'correct' : 'incorrect'}">
+                        ${isCorrect ? '<span class="result-icon">✓</span><span class="result-text">أحسنت! إجابتك صحيحة</span>' : '<span class="result-icon">○</span><span class="result-text">حظاً موفقاً غداً</span>'}
+                    </div>
+                    <button class="modal-close-btn" onclick="closeHolyWeekModal()">تم理解的 - إغلاق</button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        };
+        
+        window.closeHolyWeekModal = function() {
+            const modal = document.getElementById('holyWeekResultModal');
+            if (modal) { modal.remove(); }
+        };
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').then(reg => {
+                setInterval(() => reg.update(), 1000);
+            }).catch(() => {});
+        }
+    </script>
+
+</body>
+</html>
+

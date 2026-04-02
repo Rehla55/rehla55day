@@ -1,0 +1,626 @@
+/**
+ * =====================================================
+ * HOLY WEEK EVENT - COMPLETE STYLES
+ * =====================================================
+ * Deep Purple Theme + Resurrection White/Gold Theme
+ * =====================================================
+ */
+
+/* ===========================================
+   CSS VARIABLES
+   =========================================== */
+:root {
+    --holy-primary: #4A148C;
+    --holy-bg: #FFFDE7;
+    --holy-accent: #D4AF37;
+    --holy-text: #3E2723;
+    --holy-light: #E1BEE7;
+    --holy-dark: #311B92;
+    
+    --resurrection-white: #FFFFFF;
+    --resurrection-gold: #FFD700;
+    --resurrection-cream: #FFFEF0;
+}
+
+/* ===========================================
+   COUNTDOWN COMPONENT
+   =========================================== */
+#holyWeekCountdown {
+    background: linear-gradient(145deg, #4A148C, #311B92);
+    border-radius: 20px;
+    padding: 25px 20px;
+    margin: 15px auto;
+    max-width: 480px;
+    box-shadow: 0 10px 40px rgba(74, 20, 140, 0.4);
+    border: 3px solid var(--holy-accent);
+    font-family: 'Amiri', 'Reem Kufi', serif;
+    direction: rtl;
+}
+
+.countdown-wrapper {
+    text-align: center;
+}
+
+.countdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.countdown-header h2 {
+    color: var(--holy-bg);
+    font-size: 1.5rem;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.countdown-subtitle {
+    color: var(--holy-light);
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+.countdown-timer-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px 15px;
+    border-radius: 15px;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.countdown-unit-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 55px;
+}
+
+.countdown-value-lg {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: var(--holy-accent);
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    line-height: 1;
+}
+
+.countdown-label-sm {
+    font-size: 0.7rem;
+    color: var(--holy-light);
+    margin-top: 5px;
+    text-transform: uppercase;
+}
+
+.countdown-colon {
+    font-size: 2rem;
+    color: var(--holy-accent);
+    font-weight: bold;
+    opacity: 0.7;
+    margin-top: -15px;
+}
+
+.countdown-footer-text {
+    color: var(--holy-bg);
+    font-size: 0.9rem;
+    margin-top: 15px;
+    padding: 5px 15px;
+    background: rgba(212, 175, 55, 0.2);
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.cross-icon-animated {
+    font-size: 1.8rem;
+    color: var(--holy-accent);
+    animation: floatCross 3s ease-in-out infinite;
+}
+
+@keyframes floatCross {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-5px) rotate(5deg); }
+}
+
+/* ===========================================
+   HOLY WEEK ACTIVE BANNER
+   =========================================== */
+#holyWeekActiveBanner {
+    background: linear-gradient(145deg, #4A148C, #311B92);
+    padding: 15px;
+    text-align: center;
+    border-bottom: 3px solid var(--holy-accent);
+    box-shadow: 0 4px 15px rgba(74, 20, 140, 0.3);
+    direction: rtl;
+}
+
+.holy-week-announcement {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.banner-cross {
+    font-size: 2rem;
+    color: var(--holy-accent);
+    animation: pulse 2s infinite;
+}
+
+.banner-text h3 {
+    color: var(--holy-bg);
+    font-size: 1.3rem;
+    margin: 0 0 3px 0;
+    font-family: 'Amiri', serif;
+}
+
+.banner-text p {
+    color: var(--holy-light);
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+/* ===========================================
+   RESURRECTION BANNER
+   =========================================== */
+#resurrectionBanner {
+    background: linear-gradient(145deg, #FFD700, #FFA500);
+    padding: 20px;
+    text-align: center;
+    border-bottom: 4px solid #fff;
+    box-shadow: 0 4px 25px rgba(255, 215, 0, 0.5);
+    direction: rtl;
+}
+
+.resurrection-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.resurrection-cross {
+    font-size: 2.5rem;
+    color: #fff;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    animation: resurrectionGlow 2s ease-in-out infinite;
+}
+
+@keyframes resurrectionGlow {
+    0%, 100% { 
+        text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        transform: scale(1);
+    }
+    50% { 
+        text-shadow: 0 0 30px rgba(255,255,255,0.8);
+        transform: scale(1.1);
+    }
+}
+
+.resurrection-text h3 {
+    color: #fff;
+    font-size: 1.8rem;
+    margin: 0 0 5px 0;
+    font-family: 'Amiri', serif;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.resurrection-text p {
+    color: rgba(255,255,255,0.95);
+    font-size: 0.95rem;
+    margin: 0;
+    font-style: italic;
+}
+
+/* ===========================================
+   HOLY WEEK THEME - BODY
+   =========================================== */
+body.holy-week-theme {
+    background-color: var(--holy-bg) !important;
+    background: 
+        linear-gradient(135deg, rgba(255, 253, 231, 0.97), rgba(255, 245, 210, 0.97)),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath d='M40 5 L40 75 M15 25 L65 25 M15 55 L65 55' stroke='%23D4AF37' stroke-width='1.5' fill='none' opacity='0.06'/%3E%3C/svg%3E") !important;
+}
+
+body.holy-week-theme .card {
+    background: rgba(255, 253, 231, 0.98) !important;
+    border-color: var(--holy-accent) !important;
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.4) !important;
+}
+
+body.holy-week-theme header {
+    background: linear-gradient(145deg, #4A148C, #311B92) !important;
+    border-color: var(--holy-accent) !important;
+}
+
+body.holy-week-theme header,
+body.holy-week-theme #userNameDisplay,
+body.holy-week-theme #headerScore {
+    color: var(--holy-bg) !important;
+}
+
+body.holy-week-theme h1,
+body.holy-week-theme h2,
+body.holy-week-theme h3 {
+    color: var(--holy-primary) !important;
+}
+
+body.holy-week-theme button {
+    background: linear-gradient(145deg, #D4AF37, #B8860B) !important;
+    color: #4A148C !important;
+}
+
+body.holy-week-theme footer {
+    background: linear-gradient(145deg, #4A148C, #311B92) !important;
+    border-color: var(--holy-accent) !important;
+    color: var(--holy-bg) !important;
+}
+
+/* ===========================================
+   RESURRECTION THEME - BODY
+   =========================================== */
+body.resurrection-theme {
+    background-color: var(--resurrection-cream) !important;
+    background: 
+        radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 1), rgba(255, 254, 240, 0.98)),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' stroke='%23FFD700' stroke-width='0.5' fill='none' opacity='0.1'/%3E%3Ccircle cx='50' cy='50' r='25' stroke='%23FFD700' stroke-width='0.5' fill='none' opacity='0.08'/%3E%3C/svg%3E") !important;
+}
+
+body.resurrection-theme .card {
+    background: rgba(255, 255, 255, 0.98) !important;
+    border-color: var(--resurrection-gold) !important;
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.5) !important;
+}
+
+body.resurrection-theme header {
+    background: linear-gradient(145deg, #FFD700, #FFA500) !important;
+    border-color: #fff !important;
+}
+
+body.resurrection-theme header,
+body.resurrection-theme #userNameDisplay,
+body.resurrection-theme #headerScore {
+    color: #fff !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+body.resurrection-theme h1,
+body.resurrection-theme h2,
+body.resurrection-theme h3 {
+    color: #2C1810 !important;
+}
+
+body.resurrection-theme button {
+    background: linear-gradient(145deg, #FFD700, #FFA500) !important;
+    color: #2C1810 !important;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4) !important;
+}
+
+body.resurrection-theme footer {
+    background: linear-gradient(145deg, #FFD700, #FFA500) !important;
+    border-color: #fff !important;
+    color: #2C1810 !important;
+}
+
+/* ===========================================
+   RESULT MODAL
+   =========================================== */
+.holy-week-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.holy-week-modal-overlay.closing {
+    animation: modalFadeOut 0.3s ease forwards;
+}
+
+@keyframes modalFadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.holy-week-modal-content {
+    background: var(--holy-bg);
+    border: 3px solid var(--holy-accent);
+    border-radius: 25px;
+    padding: 30px 25px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    text-align: center;
+    direction: rtl;
+    animation: modalSlideUp 0.4s cubic-bezier(.22,1,.36,1);
+    box-shadow: 0 0 50px rgba(74, 20, 140, 0.4);
+}
+
+.resurrection-modal {
+    background: var(--resurrection-cream) !important;
+    border-color: var(--resurrection-gold) !important;
+    box-shadow: 0 0 60px rgba(255, 215, 0, 0.6) !important;
+}
+
+@keyframes modalSlideUp {
+    from { opacity: 0; transform: translateY(30px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.modal-header h2 {
+    color: var(--holy-primary);
+    font-size: 1.6rem;
+    margin: 0;
+}
+
+.resurrection-modal .modal-header h2 {
+    color: #2C1810;
+    font-size: 1.8rem;
+}
+
+.modal-cross {
+    font-size: 1.5rem;
+    color: var(--holy-accent);
+}
+
+.resurrection-modal .modal-cross {
+    color: var(--resurrection-gold);
+}
+
+.modal-scripture {
+    background: rgba(74, 20, 140, 0.05);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border-right: 4px solid var(--holy-accent);
+}
+
+.resurrection-modal .modal-scripture {
+    background: rgba(255, 215, 0, 0.1);
+    border-right-color: var(--resurrection-gold);
+}
+
+.scripture-ref {
+    color: var(--holy-primary);
+    font-size: 0.95rem;
+    margin: 0;
+    font-style: italic;
+    line-height: 1.6;
+}
+
+.modal-explanation {
+    text-align: right;
+    margin-bottom: 20px;
+}
+
+.modal-explanation h3 {
+    color: var(--holy-primary);
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.modal-explanation p {
+    color: var(--holy-text);
+    font-size: 1rem;
+    line-height: 1.8;
+    margin: 0;
+}
+
+.modal-spiritual {
+    background: linear-gradient(145deg, rgba(74, 20, 140, 0.08), rgba(74, 20, 140, 0.03));
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.resurrection-modal .modal-spiritual {
+    background: linear-gradient(145deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05));
+}
+
+.spiritual-icon {
+    font-size: 2rem;
+    color: var(--holy-accent);
+}
+
+.spiritual-message {
+    color: var(--holy-text);
+    font-size: 1.05rem;
+    margin: 0;
+    line-height: 1.7;
+    flex: 1;
+}
+
+.modal-result {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.modal-result.correct {
+    background: rgba(76, 175, 80, 0.15);
+    color: #2E7D32;
+    border: 2px solid #4CAF50;
+}
+
+.modal-result.incorrect {
+    background: rgba(244, 67, 54, 0.1);
+    color: #C62828;
+    border: 2px solid #EF5350;
+}
+
+.result-icon {
+    font-size: 1.3rem;
+}
+
+.modal-close-btn {
+    background: var(--holy-accent) !important;
+    color: var(--holy-primary) !important;
+    padding: 15px 40px !important;
+    border-radius: 50px !important;
+    font-size: 1.1rem !important;
+    border: none !important;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal-close-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
+}
+
+/* ===========================================
+   LEADERBOARD CROSS BADGES
+   =========================================== */
+.cross-gold {
+    color: var(--holy-accent);
+    margin-left: 5px;
+    animation: glowCross 2s ease-in-out infinite;
+    display: inline-block;
+}
+
+@keyframes glowCross {
+    0%, 100% { 
+        text-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+    }
+    50% { 
+        text-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
+    }
+}
+
+body.resurrection-theme .cross-gold {
+    color: var(--resurrection-gold);
+}
+
+/* ===========================================
+   OPTION BUTTONS
+   =========================================== */
+body.holy-week-theme .option-btn,
+body.resurrection-theme .option-btn {
+    background: rgba(74, 20, 140, 0.08);
+    border: 2px solid var(--holy-accent);
+    color: var(--holy-text);
+    padding: 15px;
+    border-radius: 12px;
+    width: 100%;
+    text-align: right;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Amiri', serif;
+    font-size: 1rem;
+    margin: 8px 0;
+}
+
+body.resurrection-theme .option-btn {
+    background: rgba(255, 215, 0, 0.1);
+    border-color: var(--resurrection-gold);
+    color: #2C1810;
+}
+
+.option-btn:hover {
+    background: rgba(212, 175, 55, 0.3);
+    transform: scale(1.02);
+}
+
+/* ===========================================
+   RESPONSIVE
+   =========================================== */
+@media (max-width: 480px) {
+    #holyWeekCountdown {
+        margin: 10px;
+        padding: 15px 10px;
+    }
+    
+    .countdown-value-lg {
+        font-size: 1.6rem;
+    }
+    
+    .countdown-label-sm {
+        font-size: 0.6rem;
+    }
+    
+    .countdown-unit-box {
+        min-width: 45px;
+    }
+    
+    .countdown-colon {
+        font-size: 1.5rem;
+        margin-top: -12px;
+    }
+    
+    .holy-week-modal-content {
+        padding: 20px 15px;
+        margin: 10px;
+    }
+    
+    .modal-header h2 {
+        font-size: 1.3rem;
+    }
+    
+    .resurrection-text h3 {
+        font-size: 1.4rem;
+    }
+}
+
+/* ===========================================
+   ANIMATIONS
+   =========================================== */
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.1); }
+}
+
+/* ===========================================
+   TOAST OVERRIDES
+   =========================================== */
+body.holy-week-theme .toast,
+body.resurrection-theme .toast {
+    background: rgba(74, 20, 140, 0.95);
+    border-color: var(--holy-accent);
+}
+
+body.resurrection-theme .toast {
+    background: rgba(44, 24, 16, 0.95);
+    border-color: var(--resurrection-gold);
+    color: #fff;
+}
+
+body.holy-week-theme .toast.success,
+body.resurrection-theme .toast.success {
+    border-color: #4CAF50;
+}
