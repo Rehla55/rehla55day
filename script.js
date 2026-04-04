@@ -1186,3 +1186,37 @@ updateNotificationUI();
     });
     };
 
+    window.loadProfileData = function() {
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            window.showPage('loginPage');
+            return;
+        }
+
+        document.getElementById('profileName').textContent = user.displayName || 'مستخدم';
+        document.getElementById('profileEmail').textContent = user.email || 'غير متوفر';
+
+        const nameEl = document.getElementById('userNameDisplay');
+        if (nameEl) nameEl.textContent = user.displayName || 'مستخدم';
+
+        firebase.database().ref('users/' + user.uid).once('value').then(snap => {
+            const data = snap.val() || {};
+            const score = data.score || 0;
+            document.getElementById('profileScore').textContent = score + ' نقطة';
+
+            const headerScore = document.getElementById('headerScore');
+            if (headerScore) headerScore.innerHTML = score + ' <small>PT</small>';
+
+            const solvedDays = data.solvedDays || "";
+            const daysCompleted = solvedDays ? solvedDays.split(',').filter(d => d.trim()).length : 0;
+            const progress = Math.min((daysCompleted / 55) * 100, 100);
+            document.getElementById('profileProgressBar').style.width = progress + '%';
+            document.getElementById('profileDaysText').textContent = daysCompleted + ' / 55 يوم';
+        });
+    };
+
+    window.showProfilePage = function() {
+        window.loadProfileData();
+        window.showPage('profilePage');
+    };
+
