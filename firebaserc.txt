@@ -1,7 +1,0 @@
-{
-  "projects": {
-    "default": "rehla55day-e8bf2"
-  },
-  "targets": {},
-  "etags": {}
-}
