@@ -13,8 +13,8 @@
     --holy-primary: #D4AF37;
     --holy-bg: #000000;
     --holy-accent: #D4AF37;
-    --holy-text: #D4AF37;
-    --holy-light: #D4AF37;
+    --holy-text: #FFFFFF;
+    --holy-light: #FFFFFF;
     --holy-dark: #1a1a1a;
     
     --resurrection-white: #FFFFFF;
@@ -27,14 +27,8 @@
    =========================================== */
 #holyWeekCountdown {
     background: linear-gradient(145deg, #000000, #1a1a1a);
-    border-radius: 20px;
-    padding: 25px 20px;
-    margin: 15px auto;
-    max-width: 480px;
-    box-shadow: 0 10px 40px rgba(74, 20, 140, 0.4);
-    border: 3px solid var(--holy-accent);
-    font-family: 'Amiri', 'Reem Kufi', serif;
-    direction: rtl;
+    border: 3px solid #D4AF37;
+    box-shadow: 0 10px 40px rgba(212, 175, 55, 0.3);
 }
 
 .countdown-wrapper {
@@ -50,14 +44,14 @@
 }
 
 .countdown-header h2 {
-    color: var(--holy-accent);
+    color: #D4AF37;
     font-size: 1.5rem;
     margin: 0;
     text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .countdown-subtitle {
-    color: var(--holy-accent);
+    color: #D4AF37;
     font-size: 1rem;
     margin-bottom: 20px;
 }
@@ -84,7 +78,7 @@
 .countdown-value-lg {
     font-size: 2.2rem;
     font-weight: bold;
-    color: var(--holy-accent);
+    color: #D4AF37;
     text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
     font-family: 'Segoe UI', Tahoma, sans-serif;
     line-height: 1;
@@ -92,21 +86,21 @@
 
 .countdown-label-sm {
     font-size: 0.7rem;
-    color: var(--holy-accent);
+    color: #D4AF37;
     margin-top: 5px;
     text-transform: uppercase;
 }
 
 .countdown-colon {
     font-size: 2rem;
-    color: var(--holy-accent);
+    color: #D4AF37;
     font-weight: bold;
     opacity: 0.7;
     margin-top: -15px;
 }
 
 .countdown-footer-text {
-    color: var(--holy-accent);
+    color: #D4AF37;
     font-size: 0.9rem;
     margin-top: 15px;
     padding: 5px 15px;
@@ -117,7 +111,7 @@
 
 .cross-icon-animated {
     font-size: 1.8rem;
-    color: var(--holy-accent);
+    color: #D4AF37;
     animation: floatCross 3s ease-in-out infinite;
 }
 
@@ -130,12 +124,9 @@
    HOLY WEEK ACTIVE BANNER
    =========================================== */
 #holyWeekActiveBanner {
-    background: linear-gradient(145deg, #4A148C, #311B92);
-    padding: 15px;
-    text-align: center;
-    border-bottom: 3px solid var(--holy-accent);
-    box-shadow: 0 4px 15px rgba(74, 20, 140, 0.3);
-    direction: rtl;
+    background: linear-gradient(145deg, #000000, #1a1a1a);
+    border-bottom: 3px solid #D4AF37;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
 }
 
 .holy-week-announcement {
@@ -149,19 +140,31 @@
 
 .banner-cross {
     font-size: 2rem;
-    color: var(--holy-accent);
+    color: #ffffff;
     animation: pulse 2s infinite;
 }
 
 .banner-text h3 {
-    color: var(--holy-accent);
+    color: #D4AF37;
     font-size: 1.3rem;
     margin: 0 0 3px 0;
     font-family: 'Amiri', serif;
 }
 
 .banner-text p {
-    color: var(--holy-accent);
+    color: #D4AF37;
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.banner-cross {
+    font-size: 2rem;
+    color: #D4AF37;
+    animation: pulse 2s infinite;
+}
+
+.banner-text p {
+    color: #ffffff;
     font-size: 0.85rem;
     margin: 0;
 }
@@ -227,41 +230,41 @@ body.holy-week-theme {
     background-color: #000000 !important;
     background: 
         linear-gradient(135deg, rgba(0, 0, 0, 0.97), rgba(26, 26, 26, 0.97)),
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath d='M40 5 L40 75 M15 25 L65 25 M15 55 L65 55' stroke='%23D4AF37' stroke-width='1.5' fill='none' opacity='0.1'/%3E%3C/svg%3E") !important;
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath d='M40 5 L40 75 M15 25 L65 25 M15 55 L65 55' stroke='%23FFFFFF' stroke-width='1.5' fill='none' opacity='0.1'/%3E%3C/svg%3E") !important;
 }
 
 body.holy-week-theme .card {
-    background: rgba(0, 0, 0, 0.98) !important;
-    border-color: var(--holy-accent) !important;
-    box-shadow: 0 0 30px rgba(212, 175, 55, 0.4) !important;
+    background: rgba(26, 26, 26, 0.98) !important;
+    border-color: #D4AF37 !important;
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.3) !important;
 }
 
 body.holy-week-theme header {
-    background: linear-gradient(145deg, #4A148C, #311B92) !important;
-    border-color: var(--holy-accent) !important;
+    background: linear-gradient(145deg, #000000, #1a1a1a) !important;
+    border-color: #D4AF37 !important;
 }
 
 body.holy-week-theme header,
 body.holy-week-theme #userNameDisplay,
 body.holy-week-theme #headerScore {
-    color: var(--holy-accent) !important;
+    color: #ffffff !important;
 }
 
 body.holy-week-theme h1,
 body.holy-week-theme h2,
 body.holy-week-theme h3 {
-    color: #FFD700 !important;
+    color: #D4AF37 !important;
 }
 
 body.holy-week-theme button {
-    background: linear-gradient(145deg, #D4AF37, #B8860B) !important;
-    color: #4A148C !important;
+    background: linear-gradient(145deg, #FFFFFF, #CCCCCC) !important;
+    color: #000000 !important;
 }
 
 body.holy-week-theme footer {
     background: linear-gradient(145deg, #000000, #1a1a1a) !important;
-    border-color: var(--holy-accent) !important;
-    color: var(--holy-accent) !important;
+    border-color: #D4AF37 !important;
+    color: #D4AF37 !important;
 }
 
 /* ===========================================
@@ -352,7 +355,7 @@ body.resurrection-theme footer {
     text-align: center;
     direction: rtl;
     animation: modalSlideUp 0.4s cubic-bezier(.22,1,.36,1);
-    box-shadow: 0 0 50px rgba(74, 20, 140, 0.4);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.4);
 }
 
 .resurrection-modal {
@@ -375,7 +378,7 @@ body.resurrection-theme footer {
 }
 
 .modal-header h2 {
-    color: var(--holy-primary);
+    color: #D4AF37;
     font-size: 1.6rem;
     margin: 0;
 }
@@ -387,7 +390,7 @@ body.resurrection-theme footer {
 
 .modal-cross {
     font-size: 1.5rem;
-    color: var(--holy-accent);
+    color: #D4AF37;
 }
 
 .resurrection-modal .modal-cross {
@@ -408,7 +411,7 @@ body.resurrection-theme footer {
 }
 
 .scripture-ref {
-    color: #FFD700;
+    color: #D4AF37;
     font-size: 0.95rem;
     margin: 0;
     font-style: italic;
@@ -532,9 +535,9 @@ body.resurrection-theme .cross-gold {
    =========================================== */
 body.holy-week-theme .option-btn,
 body.resurrection-theme .option-btn {
-    background: rgba(74, 20, 140, 0.08);
-    border: 2px solid var(--holy-accent);
-    color: var(--holy-text);
+    background: rgba(212, 175, 55, 0.1);
+    border: 2px solid #D4AF37;
+    color: #FFFFFF;
     padding: 15px;
     border-radius: 12px;
     width: 100%;
