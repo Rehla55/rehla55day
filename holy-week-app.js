@@ -14,10 +14,9 @@
     // CONFIGURATION
     // ===========================================
     const CONFIG = {
-        eventStart: new Date('2026-04-05T00:00:00'),
-        eventEnd: new Date('2026-04-13T00:00:00'),
         normalPath: 'questions',
         holyWeekPath: 'event_2026',
+        testimoniesPath: 'testimonies',
         enabled: true
     };
 
@@ -25,27 +24,36 @@
     // DATE UTILITIES
     // ===========================================
     function getCurrentDate() {
-        return new Date();
+        // Use Cairo timezone (UTC+2)
+        return new Date(new Date().toLocaleString('en-US', { timeZone: 'Africa/Cairo' }));
     }
 
     function isHolyWeekActive() {
         if (!CONFIG.enabled) return false;
-        const now = getCurrentDate();
-        return now >= CONFIG.eventStart && now < CONFIG.eventEnd;
+        const cairoNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Africa/Cairo' }));
+        // Holy Week: April 5-11 (days 1-7)
+        const start = new Date(2026, 3, 5); // April 5
+        const endHolyWeek = new Date(2026, 3, 11, 23, 59, 59); // April 11 23:59:59
+        return cairoNow >= start && cairoNow <= endHolyWeek;
     }
 
     function isBeforeEvent() {
         if (!CONFIG.enabled) return false;
-        return getCurrentDate() < CONFIG.eventStart;
+        const cairoNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Africa/Cairo' }));
+        const start = new Date(2026, 3, 5);
+        return cairoNow < start;
+    }
+
+    function isAfterHolyWeek() {
+        if (!CONFIG.enabled) return false;
+        const cairoNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Africa/Cairo' }));
+        // After April 11 (i.e., April 12 onwards)
+        const endDate = new Date(2026, 3, 12); // April 12, 2026
+        return cairoNow >= endDate;
     }
 
     function isResurrectionSunday() {
-        if (!isHolyWeekActive()) return false;
-        const now = getCurrentDate();
-        const resurrectionDate = new Date('2026-04-12');
-        return now.getFullYear() === resurrectionDate.getFullYear() &&
-               now.getMonth() === resurrectionDate.getMonth() &&
-               now.getDate() === resurrectionDate.getDate();
+        return false; // No longer needed - handled by isAfterHolyWeek
     }
 
     function getHolyWeekDay() {
@@ -154,6 +162,71 @@
         document.body.classList.add('normal-theme');
         
         document.body.style.background = '';
+    }
+
+    // ===========================================
+    // TESTIMONIES (Post-Holy Week)
+    // ===========================================
+    function loadTestimonies() {
+        if (typeof db === 'undefined') {
+            console.error('Firebase database not initialized');
+            return Promise.reject('Database not initialized');
+        }
+        
+        return db.ref(CONFIG.testimoniesPath).orderByChild('timestamp').limitToLast(20).once('value');
+    }
+
+    function displayTestimoniesPage() {
+        const homePage = document.getElementById('homePage');
+        if (!homePage) return;
+
+        const existingTestimonies = document.getElementById('testimoniesSection');
+        if (existingTestimonies) existingTestimonies.remove();
+
+        const testimoniesSection = document.createElement('div');
+        testimoniesSection.id = 'testimoniesSection';
+        testimoniesSection.innerHTML = `
+            <div style="margin-top: 20px; padding: 15px; border: 2px solid var(--gold); border-radius: 15px; background: rgba(0, 26, 51, 0.8);">
+                <h3 style="color: var(--gold); margin: 0 0 15px 0; text-align: center;">✝ شهادات أسبوع الالام ✝</h3>
+                <div id="testimoniesList" style="text-align: right; max-height: 300px; overflow-y: auto;">
+                    <p style="color: #aaa; text-align: center;">جاري تحميل الشهادات...</p>
+                </div>
+            </div>
+        `;
+
+        const card = homePage.querySelector('.card');
+        if (card) {
+            card.insertBefore(testimoniesSection, card.firstChild);
+        }
+
+        loadTestimonies().then(snap => {
+            const list = document.getElementById('testimoniesList');
+            if (!list) return;
+
+            const data = snap.val();
+            if (!data) {
+                list.innerHTML = '<p style="color: #aaa; text-align: center;">لا توجد شهادات بعد</p>';
+                return;
+            }
+
+            const testimonies = Object.values(data).reverse();
+            list.innerHTML = '';
+
+            testimonies.forEach(t => {
+                const item = document.createElement('div');
+                item.style.cssText = 'padding: 10px; border-bottom: 1px solid rgba(212,175,55,0.2); margin-bottom: 10px;';
+                item.innerHTML = `
+                    <p style="color: var(--gold); font-weight: bold; margin: 0 0 5px 0;">${t.name || 'مستخدم'}</p>
+                    <p style="color: white; margin: 0; font-size: 0.95rem;">${t.text || ''}</p>
+                    ${t.date ? `<p style="color: #888; font-size: 0.8rem; margin: 5px 0 0 0;">${t.date}</p>` : ''}
+                `;
+                list.appendChild(item);
+            });
+        }).catch(err => {
+            console.error('Error loading testimonies:', err);
+            const list = document.getElementById('testimoniesList');
+            if (list) list.innerHTML = '<p style="color: #ff4444; text-align: center;">فشل في تحميل الشهادات</p>';
+        });
     }
 
     // ===========================================
@@ -403,6 +476,10 @@
         
         const original = window.loadDailyContent;
         window.loadDailyContent = function(uid) {
+            if (isAfterHolyWeek()) {
+                displayTestimoniesPage();
+            }
+            
             if (isHolyWeekActive()) {
                 const day = getHolyWeekDay();
                 loadHolyWeekQuestion(day).then(qSnap => {
@@ -432,6 +509,19 @@
     // INITIALIZATION
     // ===========================================
     function initHolyWeek() {
+        console.log('[HolyWeek] Initializing...');
+        console.log('[HolyWeek] Current Cairo time:', getCurrentDate());
+        console.log('[HolyWeek] Holy Week Active:', isHolyWeekActive());
+        console.log('[HolyWeek] After Holy Week:', isAfterHolyWeek());
+        console.log('[HolyWeek] Resurrection Sunday:', isResurrectionSunday());
+        
+        if (isAfterHolyWeek()) {
+            console.log('[HolyWeek] Post-Holy Week mode - removing theme and showing testimonies');
+            removeHolyWeekTheme();
+            displayTestimoniesPage();
+            return;
+        }
+        
         if (isResurrectionSunday()) {
             applyResurrectionTheme();
         } else {
@@ -455,6 +545,9 @@
             }, 500);
         } else if (isHolyWeekActive()) {
             initHolyWeek();
+        } else if (isAfterHolyWeek()) {
+            removeHolyWeekTheme();
+            displayTestimoniesPage();
         }
         
         patchLeaderboardRender();
@@ -467,12 +560,16 @@
     window.HolyWeek = {
         isActive: isHolyWeekActive,
         isBefore: isBeforeEvent,
+        isAfter: isAfterHolyWeek,
         isResurrection: isResurrectionSunday,
         getDay: getHolyWeekDay,
         getTimeRemaining: getTimeUntilEvent,
         getPath: window.getQuestionsPath,
         applyTheme: applyHolyWeekTheme,
+        removeTheme: removeHolyWeekTheme,
         showResultModal: window.showHolyWeekResultModal,
+        loadTestimonies: loadTestimonies,
+        displayTestimonies: displayTestimoniesPage,
         refresh: function() {
             removeExistingElements();
             init();
